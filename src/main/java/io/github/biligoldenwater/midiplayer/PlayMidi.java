@@ -280,7 +280,7 @@ public class PlayMidi {
                                     progressBar.append("-");
                                 }
                                 //targetPlayer.sendMessage(String.valueOf(event.get(0))+event.get(1));
-                                targetPlayer.sendTitle( "§r", "["+progressBar+"] "+((int) (percent*100) * 1.0 /100)+"%", 0, 100, 0);
+                                targetPlayer.sendTitle( "§r", "["+progressBar+"] "+((int) (percent*100) * 1.0 /100) + "%", 0, 100, 0);
                                 i++;
                             }
                             targetPlayer.sendTitle( "§r", "§r",0,0,0);
