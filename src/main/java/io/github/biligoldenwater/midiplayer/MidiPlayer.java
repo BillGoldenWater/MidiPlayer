@@ -2,11 +2,7 @@ package io.github.biligoldenwater.midiplayer;
 
 import io.github.biligoldenwater.midiplayer.api.PlayingMidis;
 import io.github.biligoldenwater.midiplayer.modules.CommandMidiPlayer;
-import io.github.biligoldenwater.midiplayer.modules.GetMidis;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
-import java.util.List;
 
 public final class MidiPlayer extends JavaPlugin {
 
