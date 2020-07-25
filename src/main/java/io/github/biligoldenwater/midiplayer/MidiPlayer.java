@@ -3,7 +3,6 @@ package io.github.biligoldenwater.midiplayer;
 import io.github.biligoldenwater.midiplayer.api.PlayingMidis;
 import io.github.biligoldenwater.midiplayer.modules.CommandMidiPlayer;
 import io.github.biligoldenwater.midiplayer.modules.GetMidis;
-import io.github.biligoldenwater.midiplayer.modules.PlayNote;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -24,15 +23,15 @@ public final class MidiPlayer extends JavaPlugin {
         CommandMidiPlayer.registerCommandMidiPlayer();
         // End of init
 
-        getLogger().info(musicsPathName);
-        getLogger().info(String.valueOf(GetMidis.getMidis(musicsPathName)));
-
-        List<File> midis = GetMidis.getMidis(musicsPathName);
-
-        PlayingMidis.playingMidis.put("Golden_Water",new PlayMidi());
-
-        PlayingMidis.playingMidis.get("Golden_Water").initMidi(this,midis.get(0));
-        PlayingMidis.playingMidis.get("Golden_Water").playMidi(getServer().getPlayer("Golden_Water"), false, PlayNote.realPiano);
+//        getLogger().info(musicsPathName);
+//        getLogger().info(String.valueOf(GetMidis.getMidis(musicsPathName)));
+//
+//        List<File> midis = GetMidis.getMidis(musicsPathName);
+//
+//        PlayingMidis.playingMidis.put("Golden_Water",new PlayMidi());
+//
+//        PlayingMidis.playingMidis.get("Golden_Water").initMidi(this,midis.get(0));
+//        PlayingMidis.playingMidis.get("Golden_Water").playMidi(getServer().getPlayer("Golden_Water"), false, PlayNote.realPiano);
 
         getLogger().info("Enabled");//输出已启用消息到日志
     }
