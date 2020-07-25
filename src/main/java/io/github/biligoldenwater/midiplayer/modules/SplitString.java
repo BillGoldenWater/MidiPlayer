@@ -40,7 +40,6 @@ public class SplitString {
         }
 
         String[] strs = new String[count+1];
-        String temp;
         byte flag = 1;
         count=0;
 

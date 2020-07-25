@@ -7,7 +7,6 @@ import io.github.biligoldenwater.midiplayer.modules.CheckPermissions;
 import io.github.biligoldenwater.midiplayer.modules.GetMidis;
 import io.github.biligoldenwater.midiplayer.modules.HashMapLoadAndSave;
 import io.github.biligoldenwater.midiplayer.modules.PlayNote;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
