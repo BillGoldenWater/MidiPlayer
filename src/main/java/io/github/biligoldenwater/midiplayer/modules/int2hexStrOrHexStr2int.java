@@ -10,6 +10,9 @@ public class int2hexStrOrHexStr2int {
             output.append(intMod16(integer));
             integer = integer / 16;
         }
+        if(output.length()<2){
+            output.append('0');
+        }
         output.reverse();
         return output.toString();
     }

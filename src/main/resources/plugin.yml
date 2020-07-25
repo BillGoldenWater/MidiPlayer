@@ -29,6 +29,9 @@ permissions:
           midiplayer.commands.stop:
             description: Command for stop a midiplayer.
             default: true
+          midiplayer.commands.toggleprogressbar:
+            description: Command for toggle progress bar display.
+            default: true
           midiplayer.commands.resourcepacks:
             description: Command for show all available resource packs.
             default: true

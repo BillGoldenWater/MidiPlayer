@@ -1,7 +1,8 @@
 package io.github.biligoldenwater.midiplayer;
 
 import io.github.biligoldenwater.midiplayer.api.PlayingMidis;
-import io.github.biligoldenwater.midiplayer.modules.CommandMidiPlayer;
+import io.github.biligoldenwater.midiplayer.commands.CommandMidiPlayer;
+import io.github.biligoldenwater.midiplayer.commands.TabMidiPlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MidiPlayer extends JavaPlugin {
@@ -17,6 +18,7 @@ public final class MidiPlayer extends JavaPlugin {
         instance = this;
         musicsPathName = getDataFolder().getPath() + "\\musics";
         CommandMidiPlayer.registerCommandMidiPlayer();
+        TabMidiPlayer.registerTabMidiPlayer();
         // End of init
 
 //        getLogger().info(musicsPathName);
