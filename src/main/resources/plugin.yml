@@ -1,0 +1,37 @@
+name: MidiPlayer
+version: ${project.version}
+main: io.github.biligoldenwater.midiplayer.MidiPlayer
+authors: [Golden_Water]
+description: A plugin let you can play midi music.
+commands:
+  midiplayer:
+    aliases: [mp]
+    usage: /midiplayer help
+    description: Plugin main command.
+permissions:
+  midiplayer.*:
+    description: Plugin all permissions.
+    default: false
+    children:
+      midiplayer.commands.*:
+        description: Plugin all command permissions.
+        default: op
+        children:
+          midiplayer.commands.help:
+            description: Command for show help message.
+            default: true
+          midiplayer.commands.list:
+            description: Command for show all midi files.
+            default: true
+          midiplayer.commands.play:
+            description: Command for play a midi.
+            default: true
+          midiplayer.commands.stop:
+            description: Command for stop a midiplayer.
+            default: true
+          midiplayer.commands.resourcepacks:
+            description: Command for show all available resource packs.
+            default: true
+          midiplayer.commands.reload:
+            description: Command for reload config.
+            default: op
