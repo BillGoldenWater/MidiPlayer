@@ -20,7 +20,7 @@ import static io.github.biligoldenwater.midiplayer.modules.int2hexStrOrHexStr2in
 
 public class PlayMidi {
     private double msPerTick;
-    private Map<String,List<List<Long>>> midiData = new HashMap<>();
+    private final Map<String,List<List<Long>>> midiData = new HashMap<>();
     private long tick = 0;
     private int delayMultiple = 1;
     private long midiLength;
