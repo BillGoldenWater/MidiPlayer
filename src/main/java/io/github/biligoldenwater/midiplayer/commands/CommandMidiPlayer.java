@@ -295,23 +295,28 @@ public class CommandMidiPlayer {
     private static void sendHelpMessages(CommandSender sender, int helpLevel){
         switch (helpLevel){
             case pluginInfo:
-                sender.sendMessage("MidiPlayer by.Golden_Water");
+                sender.sendMessage("");
+                sender.sendMessage("MidiPlayer by.§eGolden§7_§bWater");
                 sender.sendMessage("For show help message please use:");
                 sender.sendMessage("/midiplayer help or /mp help");
                 break;
             case subCommandPlay:
+                sender.sendMessage("");
                 sender.sendMessage("Usage: /midiplayer play <index> [resourcePackIndex] [useSoundStop]");
-                sender.sendMessage("      Play midi use index.You can use command:/midiplayer list");
-                sender.sendMessage("      to get midi index.And the default");
-                sender.sendMessage("      resource pack is vanilla(index 0) resources.");
-                sender.sendMessage("      You can use command:/midiplayer resourcepacks");
-                sender.sendMessage("      to get resource pack index.");
-                sender.sendMessage("      useSoundStop:Use or not use(1 or 0)");
-                sender.sendMessage("      sound stop on end of a note. (default is 0)");
+                sender.sendMessage("      Play midi use index.");
+                sender.sendMessage("      index:");
+                sender.sendMessage("        You can use command:/midiplayer list to get midi index.");
+                sender.sendMessage("      resourcePackIndex:");
+                sender.sendMessage("        You can use command:/midiplayer resourcepacks to get resource pack index.");
+                sender.sendMessage("        Default resource pack is vanilla(index 0) resources.");
+                sender.sendMessage("      useSoundStop:");
+                sender.sendMessage("        Use or not use(1 or 0) sound stop on end of a note.(default is 0)");
+                sender.sendMessage("        Sometime");
                 break;
             case fullHelp:
             default:
-                sender.sendMessage("MidiPlayer by.Golden_Water");
+                sender.sendMessage("");
+                sender.sendMessage("MidiPlayer by.§eGolden§7_§bWater");
                 sender.sendMessage("Usage: /midiplayer help (Show this message.)");
                 sender.sendMessage("Usage: /midiplayer list [page] (List all midis with index and name.)");
                 sender.sendMessage("Usage: /midiplayer play <index> [resourcePackIndex] [useSoundStop] (Use this command to get more details.)");
