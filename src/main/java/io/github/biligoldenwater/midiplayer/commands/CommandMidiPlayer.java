@@ -3,10 +3,7 @@ package io.github.biligoldenwater.midiplayer.commands;
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
 import io.github.biligoldenwater.midiplayer.PlayMidi;
 import io.github.biligoldenwater.midiplayer.api.PlayingMidis;
-import io.github.biligoldenwater.midiplayer.modules.CheckPermissions;
-import io.github.biligoldenwater.midiplayer.modules.GetMidis;
-import io.github.biligoldenwater.midiplayer.modules.HashMapLoadAndSave;
-import io.github.biligoldenwater.midiplayer.modules.PlayNote;
+import io.github.biligoldenwater.midiplayer.modules.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -41,14 +38,7 @@ public class CommandMidiPlayer {
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.list")) return true;
                                 List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPathName()); // 获取所有Midi文件
 
-                                sender.sendMessage("There is all midis:");
-
-                                for (int i = 0; i < Math.min(midis.size(), 10); ++i) { // 如果没有超过10个则遍历所有文件 如果超过则之遍历前十
-                                    String fileName = midis.get(i).getName(); // 获取文件名
-                                    fileName = fileName.replaceAll(".mid", ""); // 删除后缀
-                                    fileName = fileName.replace(".midi", "");
-                                    sender.sendMessage("Index: " + i + " Name: " + fileName);
-                                }
+                                sendMidisListWithMultiplePage(sender,midis,1); // 发送列表
                                 return true;
                             case "play":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.play")) return true;
@@ -65,10 +55,12 @@ public class CommandMidiPlayer {
                                     return true;
                                 }
                                 PlayMidi playMidi = PlayingMidis.playingMidis.get(sender.getName()); // 获取玩家的播放中midi
-                                if (playMidi != null) { // 如果播放中的midi不为空则停止播放
+                                if (playMidi != null && playMidi.isRunning()) { // 如果播放中的midi不为空且正在播放则停止播放
                                     MidiPlayer.getInstance().getLogger().info("Force stop midi player for player:" + sender.getName() + ".");
                                     playMidi.stopSound();
                                     sender.sendMessage("Stopped.");
+                                } else {
+                                    sender.sendMessage("Can't stop,because it doesn't playing.");
                                 }
                                 return true;
                             case "toggleprogressbar":
@@ -87,7 +79,6 @@ public class CommandMidiPlayer {
                                     sender.sendMessage("Try to toggle to on.");
                                     isEnable = true;
                                 }
-
                                 configMap.put(sender.getName(), isEnable); // 将更改后的放入Map
                                 hashMapLoadAndSave.saveHashMap(config, plugin, "progressbar", configMap); // 存储到配置文件
                                 plugin.saveConfig(); // 保存配置文件
@@ -95,7 +86,39 @@ public class CommandMidiPlayer {
                                 return true;
                             case "resourcepacks":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.resourcepacks")) return true;
-                                sender.getServer().dispatchCommand(sender.getServer().getConsoleSender(),"tellraw "+sender.getName()+" {\"text\":\"test\"}");
+
+                                sender.sendMessage("There is all support resourcepacks:");
+
+                                JsonMessage clickToDownload = new JsonMessage("Click to download.");
+                                JsonMessage downloadUnavailable = new JsonMessage("Doesn't have download link,click to search.");
+                                clickToDownload.setBold("Click to download.",true);
+                                clickToDownload.setColor("Click to download.",ColorNames.aqua);
+                                downloadUnavailable.setBold("Doesn't have download link,click to search.",true);
+                                downloadUnavailable.setColor("Doesn't have download link,click to search,",ColorNames.gray);
+
+                                JsonMessage Vanilla = new JsonMessage("Index: 0 Vanilla");
+                                JsonMessage MSGSPiano = new JsonMessage("Index: 1 MSGS Piano ");
+                                JsonMessage RealPiano = new JsonMessage("Index: 2 Real Piano ");
+
+                                MSGSPiano.addText("[Download]");
+                                MSGSPiano.setBold("[Download]",true);
+                                MSGSPiano.setColor("[Download]",ColorNames.aqua);
+                                MSGSPiano.setUnderlined("[Download]",true);
+                                MSGSPiano.addHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,clickToDownload.getJsonArray());
+                                MSGSPiano.addClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.mcbbs.net/thread-733975-1-1.html");
+
+                                RealPiano.addText("[Download]");
+                                RealPiano.setBold("[Download]",true);
+                                RealPiano.setColor("[Download]",ColorNames.gray);
+                                RealPiano.setUnderlined("[Download]",true);
+                                RealPiano.addHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,downloadUnavailable.getJsonArray());
+                                RealPiano.addClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.bing.com/search?q=Minecraft+real+piano+resource+pack");
+
+                                Vanilla.sendTo(sender);
+                                MSGSPiano.sendTo(sender);
+                                RealPiano.sendTo(sender);
+
+
                                 return true;
                             case "reload":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.reload")) return true;
@@ -107,6 +130,23 @@ public class CommandMidiPlayer {
                                 return true;
                         }
                     case 2:
+                        if(args[0].equals("list")){
+                            if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.list")) return true;
+                            List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPathName()); // 获取所有Midi文件
+
+                            int page;
+
+                            try {
+                                page = Integer.parseInt(args[1]);
+                            } catch (Exception e){
+                                sender.sendMessage("Invalid page.");
+                                return true;
+                            }
+
+                            sendMidisListWithMultiplePage(sender,midis,page);
+
+                            return true;
+                        }
                     case 3:
                     case 4:
                         if(args[0].equals("play")){
@@ -174,6 +214,84 @@ public class CommandMidiPlayer {
         });
     }
 
+    private static void sendMidisListWithMultiplePage(CommandSender sender, List<File> midis,final int page){
+        if(page <= 0){
+            sender.sendMessage("Invalid page.");
+            return;
+        }
+        if (midis.size() > 10 * ( page - 1 ) ) { // 如果超过十个则将开头改为这里是第x页
+            sender.sendMessage("There is page "+page+":");
+
+        } else if(midis.size() <= 10) {
+            sender.sendMessage("There is all midis:");
+
+            for (int i = 0; i < midis.size(); ++i) { // 遍历所有
+                sendMidiIndexAndName(sender,i,midis);
+            }
+
+            return;
+        } else {
+            sender.sendMessage("Invalid page.");
+            return;
+        }
+
+        for (int i = 10*(page-1); i < Math.min(midis.size(), 10*page); ++i) { // 如果没有超过10个则遍历当前页所有文件 如果超过则只遍历当前页
+            sendMidiIndexAndName(sender,i,midis);
+        }
+
+        if (midis.size() > 10) { // 如果超过十个则在末尾发送翻页命令提示
+            sender.sendMessage("Use /midiplayer list [page] to visit page "+( page+1 )+".");
+            JsonMessage message = new JsonMessage("Previous page");
+
+            message.addText(" | ");
+            message.addText("Next page");
+
+            if (page>1){
+                message.setColor("Previous page", ColorNames.aqua);
+                message.addHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
+                message.addClickEvent("Previous page", JsonMessage.clickEvent.action.run_command, "/mp list "+ (page-1) );
+            } else {
+                message.setColor("Previous page", ColorNames.gray);
+                message.addHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "No previous page.");
+                message.addClickEvent("Previous page", JsonMessage.clickEvent.action.change_page, 1 );
+            }
+            message.setColor(" | ",ColorNames.reset);
+            message.addHoverEvent(" | ", JsonMessage.hoverEvent.action.show_text, "Split line.");
+            message.addClickEvent(" | ", JsonMessage.clickEvent.action.change_page, 1 );
+            if (midis.size() > 10 * page){
+                message.setColor("Next page", ColorNames.aqua);
+                message.addHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
+                message.addClickEvent("Next page", JsonMessage.clickEvent.action.run_command, "/mp list " + (page+1) );
+            } else {
+                message.setColor("Next page", ColorNames.gray);
+                message.addHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "No next page.");
+                message.addClickEvent("Next page", JsonMessage.clickEvent.action.change_page, 1 );
+            }
+
+            message.sendTo(sender);
+
+        }
+    }
+
+    private static void sendMidiIndexAndName(CommandSender sender, int i, List<File> midis){
+        String fileName = midis.get(i).getName(); // 获取文件名
+        fileName = fileName.replaceAll(".mid", ""); // 删除后缀
+        fileName = fileName.replace(".midi", "");
+
+        JsonMessage message = new JsonMessage("Index: " + i + " Name: " + fileName + " [");
+
+        message.addText("Play");
+        message.addText("]");
+
+        message.setColor("Play", ColorNames.aqua);
+        message.addHoverEvent("Play", JsonMessage.hoverEvent.action.show_text,"Click to send command to your chat bar.");
+        message.addClickEvent("Play", JsonMessage.clickEvent.action.suggest_command, "/mp play "+i);
+
+        message.setColor("]", ColorNames.reset);
+
+        message.sendTo(sender);
+    }
+
     private static void sendHelpMessages(CommandSender sender, int helpLevel){
         switch (helpLevel){
             case pluginInfo:
@@ -225,9 +343,7 @@ public class CommandMidiPlayer {
 
             try {// 尝试转换至boolean
                 useProgressBar = (boolean) hashMapLoadAndSave.loadHashMap(config,"progressbar").get(sender.getName());
-            } catch (Exception e){
-                sender.sendMessage("§cError to read config file.");
-                sender.sendMessage("§cPlease report to admin of the server admin.");
+            } catch (Exception ignored){
             }
 
             playingMidi.initMidi(plugin, (Player) sender, midis.get(index)); // 初始化midi播放器

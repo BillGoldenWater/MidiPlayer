@@ -23,7 +23,6 @@ public class PlayMidi {
     private Map<String,List<List<Long>>> midiData = new HashMap<>();
     private long tick = 0;
     private int delayMultiple = 1;
-    private List<Byte> delayTiming = new ArrayList<>();
     private long midiLength;
     private boolean isRunning = false;
 
@@ -33,11 +32,11 @@ public class PlayMidi {
             Sequence s1 = MidiSystem.getSequence(midiFile);
             //plugin.getLogger().info("tickLength:"+ s1.getTickLength());
             //plugin.getLogger().info(Arrays.toString(s1.getTracks()[0].get(0).getMessage().getMessage()));
-            midiLength = s1.getTickLength();
+            midiLength = s1.getTickLength()+100;
             Track[] tracks = s1.getTracks();
             int ticksPerBeat = s1.getResolution();
             //plugin.getLogger().info("ticksPerBeat:"+ticksPerBeat);
-            int msPerBeat;
+            int microSecondPerBeat;
             int trackID = 0;
             int trackCount = 0;
 
@@ -70,9 +69,9 @@ public class PlayMidi {
                     long nowTick = track.get(x).getTick();
                     if (lastTick != nowTick) {
                         List<Long> delay = new ArrayList<>();
-//                        int delayTicks = (int) (nowTick - lastTick);
+                        long delayTicks = nowTick - lastTick;
                         delay.add((long) 0xDD);
-                        delay.add(nowTick);
+                        delay.add(delayTicks);
                         trackData.add(delay);
                         //plugin.getLogger().info("delayTicks("+trackID+"):" + delayTicks);
                         lastTick = nowTick;
@@ -94,11 +93,16 @@ public class PlayMidi {
                                     for (int k = 3; k < chars.length; ++k) {
                                         speedHex.append(int2hexStr(Byte.toUnsignedInt(chars[k])));
                                     }
-                                    msPerBeat = hexStr2int(speedHex.toString());
+                                    microSecondPerBeat = hexStr2int(speedHex.toString());
                                     event.add((long) 0x51);
-                                    event.add((long) getMsPerTick(msPerBeat, ticksPerBeat));
+                                    if(msPerTick<getMsPerTick(microSecondPerBeat, ticksPerBeat)){
+                                        msPerTick = getMsPerTick(microSecondPerBeat, ticksPerBeat);
+                                        plugin.getLogger().info("("+microSecondPerBeat+"/"+ticksPerBeat+")Set speed to:" + getMsPerTick(microSecondPerBeat,ticksPerBeat));
+                                    }
+                                    event.add((long) getMsPerTick(microSecondPerBeat, ticksPerBeat));
+                                    plugin.getLogger().info("("+microSecondPerBeat+"/"+ticksPerBeat+")Track: "+i+" Change speed to:" + getMsPerTick(microSecondPerBeat,ticksPerBeat));
                                     //plugin.getLogger().info(Arrays.toString(chars));
-                                    plugin.getLogger().info("("+msPerBeat+"/"+ticksPerBeat+")Set speed to:" + getMsPerTick(msPerBeat,ticksPerBeat));
+
                                     break;
                                 case 0x04://Set musical instrument
                                     output = new StringBuilder();
@@ -198,9 +202,11 @@ public class PlayMidi {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //msPerTick = 1000;
         calcDelayMultiple();
-        calcDelayTiming();
-        plugin.getLogger().info(String.valueOf(delayMultiple));
+
+        plugin.getLogger().info("delayMultiple:" + delayMultiple);
         //plugin.getLogger().info(String.valueOf(midiData));
     }
 
@@ -223,17 +229,22 @@ public class PlayMidi {
                 BukkitRunnable updateTick = new BukkitRunnable() {
                     @Override
                     public void run() {
+                        final long startTime = System.currentTimeMillis();
                         while (tick <= midiLength && isRunning){
-                            try {
-                                //MidiPlayer.getInstance().getLogger().info(""+(long) (msPerTick/1000)+", "+(int) (msPerTick*1000%1000000));
-                                Thread.sleep( (long) ( (msPerTick / 1000) * ((double) delayMultiple) + (delayTiming.get((int) (tick % delayTiming.size()) )) ) );
-                                //targetPlayer.sendMessage("[Debug] delayPerTick: " + (long) ( (msPerTick / 1000) * ((double) delayMultiple) + (delayTiming.get((int) (tick % delayTiming.size()) )) ) );
-                                //Thread.sleep((long) msPerTick / 1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                            if( (System.currentTimeMillis()-startTime) < (tick * msPerTick / 1000) ){
+                                tick--;
+                                try {
+                                    Thread.sleep(2);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                tick++;
                             }
-                            tick+=delayMultiple;
                         }
+                        targetPlayer.sendMessage("End of a song");
+                        isRunning = false;
+                        cancel();
                     }
                 };
                 tracks.add(updateTick);
@@ -245,13 +256,16 @@ public class PlayMidi {
                         final List<List<Long>> data = midiData.get(String.valueOf(trackId));
                         double nowTick = 0;
                         long musicalInstrument = 0;
+                        int tickMultiple = 1;
+                        //final long startTime = System.currentTimeMillis();
                         @Override
                         public void run() {
                             int i = 0;
+                            if(data == null)return;
                             while (i<data.size() && isRunning){
                                 if(nowTick>tick){
                                     try {
-                                        Thread.sleep( (long) ( ( (msPerTick / 1000) * delayMultiple ) + (delayTiming.get((int) (tick % delayTiming.size()) )) ) );
+                                        Thread.sleep( (long) ( ( (msPerTick / 1000) * delayMultiple ) ) );
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
@@ -284,13 +298,9 @@ public class PlayMidi {
                                 } else if (event.get(0) == 0xC0) { // 更改乐器
                                     musicalInstrument = event.get(1);
                                 } else if (event.get(0) == 0xDD) { // 延时
-                                    nowTick = event.get(1);
-                                    //targetPlayer.sendMessage("[Debug] Tick: " + nowTick);
-//                                        try {
-//                                            Thread.sleep( ((long)msPerTick*event.get(1))/1000);
-//                                        } catch (InterruptedException e) {
-//                                            e.printStackTrace();
-//                                        }
+                                    nowTick += event.get(1) * tickMultiple;
+                                    midiLength += (event.get(1) * tickMultiple) - event.get(1);
+                                    //targetPlayer.sendMessage("Now time: "+(System.currentTimeMillis()-startTime)+" Time should be: " + (tick * msPerTick / 1000) + " aaa:" + ((System.currentTimeMillis()-startTime) - (tick * msPerTick / 1000)));
                                 } else if (event.get(0) == 0x05) { //歌词
                                     StringBuilder output = new StringBuilder();
                                     output.append("Lyrics:");
@@ -298,10 +308,13 @@ public class PlayMidi {
                                         output.append(String.valueOf(getChars(new byte[]{event.get(k).byteValue()})));
                                     }
                                     targetPlayer.sendMessage(output.toString());
+                                } else if (event.get(0) == 0x51){ // 更改速度
+                                    //msPerTick = event.get(1);
+                                    tickMultiple = (int) (msPerTick/event.get(1));
+                                    MidiPlayer.getInstance().getLogger().info("Change Track: "+trackId+" msPerTick to:"+msPerTick);
                                 }
 
-
-                                float percent = ((float) nowTick / (float) midiLength)*100; // 计算播放到的百分比
+                                float percent = ((float) tick / (float) midiLength)*100; // 计算播放到的百分比
                                 StringBuilder progressBar = new StringBuilder();
                                 for (int j = 0;j<(int)((percent / 100) *50);++j){
                                     progressBar.append("="); // 已播放部分
@@ -314,12 +327,11 @@ public class PlayMidi {
                                     targetPlayer.sendTitle( "§r", "["+progressBar+"] "+((int) (percent*100) * 1.0 /100) + "%", 0, 100, 0);
                                 }
                                 i++;
-
-
                             }
                             if(useProgressBar){
                                 targetPlayer.sendTitle( "§r", "§r",0,0,0);
                             }
+                            cancel();
                         }
                     };
                     tracks.add(runnable);
@@ -340,45 +352,11 @@ public class PlayMidi {
         return isRunning;
     }
 
-    private void calcDelayTiming(){
-        switch ((int) ( ((msPerTick / 1000) * ((double) delayMultiple) %1) * 10)){
-            case 9:
-            case 8:
-            case 7:
-            case 6:
-            case 5:
-                delayTiming.add((byte) 1);
-                break;
-            case 4:
-                delayTiming.add((byte) 1);
-                delayTiming.add((byte) 0);
-
-                break;
-            case 3:
-                delayTiming.add((byte) 1);
-                delayTiming.add((byte) 0);
-                delayTiming.add((byte) 0);
-                break;
-            case 2:
-                delayTiming.add((byte) 1);
-                for(int i=1; i<=3; ++i) delayTiming.add((byte) 0);
-                break;
-            case 1:
-                delayTiming.add((byte) 1);
-                for(int i=1; i<=4; ++i) delayTiming.add((byte) 0);
-                break;
-            case 0:
-                delayTiming.add((byte) 0);
-
-        }
-        //( (msPerTick / 1000) * ((double) delayMultiple) %1>=0.5 ? 1 : 0)
-    }
-
     private void calcDelayMultiple(){
         for(int i = 1;i<=100;++i){
-            if ((msPerTick/1000)*delayMultiple<=1.0){
-                MidiPlayer.getInstance().getLogger().info(String.valueOf(msPerTick/1000));
-                delayMultiple+=2;
+            if ((msPerTick/1000)*delayMultiple<1.0){
+                //MidiPlayer.getInstance().getLogger().info(String.valueOf(msPerTick/1000));
+                delayMultiple+=1;
             } else {
                 break;
             }
@@ -389,8 +367,7 @@ public class PlayMidi {
     }
 
     private double getMsPerTick(int msPerBeat,int ticksPerBeat){
-        msPerTick = (double) msPerBeat / (double) ticksPerBeat;
-        return msPerTick;
+        return (double) msPerBeat / (double) ticksPerBeat;
     }
 
     private char[] getChars (byte[] bytes) {

@@ -13,7 +13,7 @@ public class PlayNote {
 
         switch (resourcePack){
             case vanilla:
-                double perStep = 0.03409;
+                double perStep = 0.0227;
                 player.playSound(player.getLocation(),"minecraft:block.note.harp", SoundCategory.RECORDS,255, (float) ((note-20) * perStep));
 //                double perStep = 0.0227;
 //                double[] position = {player.getLocation().getX(),player.getLocation().getY(),player.getLocation().getZ()};
