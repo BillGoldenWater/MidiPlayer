@@ -5,5 +5,5 @@ A Minecraft plugin for play midi.
 After downloading, put it into the server plugins folder and restart the server.
 下载后放入服务器plugins文件夹内重启服务器即可.
 
-##For more details, please go to the wiki page.
-##更多详细信息请前往wiki页面.
+For more details, please go to the wiki page.
+更多详细信息请前往wiki页面.
