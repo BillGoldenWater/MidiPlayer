@@ -1,9 +1,16 @@
 package io.github.biligoldenwater.midiplayer;
 
+import io.github.biligoldenwater.midiplayer.api.PlayingNoteParticles;
+import io.github.biligoldenwater.midiplayer.modules.NoteParticle;
 import io.github.biligoldenwater.midiplayer.modules.PlayNote;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
@@ -13,7 +20,10 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.github.biligoldenwater.midiplayer.modules.int2hexStrOrHexStr2int.hexStr2int;
 import static io.github.biligoldenwater.midiplayer.modules.int2hexStrOrHexStr2int.int2hexStr;
@@ -25,8 +35,13 @@ public class PlayMidi {
     private int delayMultiple = 1;
     private long midiLength;
     private boolean isRunning = false;
+    private double x = 0;
+    private double z = 0;
+    private double y = 0;
+    private byte yaw = 0;
+    private List<Location> particles = new ArrayList<>();
 
-    public void initMidi(JavaPlugin plugin, Player player, File midiFile){
+    public void initMidi(JavaPlugin plugin, Player player, File midiFile, boolean useDisplayFunction){
         plugin.getLogger().info("Initialize Midi for player:"+player.getName());
         try {
             Sequence s1 = MidiSystem.getSequence(midiFile);
@@ -208,9 +223,58 @@ public class PlayMidi {
 
         plugin.getLogger().info("delayMultiple:" + delayMultiple);
         //plugin.getLogger().info(String.valueOf(midiData));
+
+        if (useDisplayFunction) {
+            Location location = player.getLocation();
+            float yaw = location.getYaw();
+
+            if (yaw > -45 && yaw < 45) {
+                x = location.getX() + (65);
+                z = location.getZ() + (25);
+                this.yaw = 0; // x-
+            } else if (yaw > 90 - 45 && yaw < 90 + 45) {
+                x = location.getX() + (-25);
+                z = location.getZ() + (65);
+                this.yaw = 1; // z-
+            } else if (yaw > -90 - 45 && yaw < -90 + 45) {
+                x = location.getX() + (25);
+                z = location.getZ() + (-65);
+                this.yaw = 3; // z+
+            } else {
+                x = location.getX() + (-65);
+                z = location.getZ() + (-25);
+                this.yaw = 2; // x+
+            }
+            y = location.getY();
+
+            Location noteLocation = new Location(player.getWorld(), x, y + 11, z);
+
+            for (int i = 21; i <= 108; ++i) {
+                noteLocation.setY(y + 11);
+                switch (this.yaw) {
+                    case 0: // x-
+                        noteLocation.setX(x - i);
+                        noteLocation.setZ(z);
+                        break;
+                    case 1: // z-
+                        noteLocation.setX(x);
+                        noteLocation.setZ(z - i);
+                        break;
+                    case 2: // x+
+                        noteLocation.setX(x + i);
+                        noteLocation.setZ(z);
+                        break;
+                    case 3: // z+
+                        noteLocation.setX(x);
+                        noteLocation.setZ(z + i);
+                        break;
+                }
+                player.sendBlockChange(noteLocation, Material.WOOL, (byte) (i % 2 == 0 ? 15 : 0));
+            }
+        }
     }
 
-    public void playMidi(Player targetPlayer ,boolean useSoundStop,byte resourcePack,boolean useProgressBar){
+    public void playMidi(Player targetPlayer, boolean useSoundStop, byte resourcePack, boolean useProgressBar, boolean useDisplayFunction){
         MidiPlayer.getInstance().getLogger().info("Play Midi for player:"+targetPlayer.getName());
         isRunning = true;
         BukkitRunnable midiPlayer = new BukkitRunnable() {
@@ -244,10 +308,61 @@ public class PlayMidi {
                         }
                         targetPlayer.sendMessage("End of a song");
                         isRunning = false;
-                        cancel();
+                        if(useDisplayFunction) {
+                            Location noteLocation = new Location(targetPlayer.getWorld(), x, y + 11, z);
+
+                            for (int i = 21; i <= 108; ++i) {
+                                noteLocation.setY(y + 11);
+                                switch (yaw) {
+                                    case 0: // x-
+                                        noteLocation.setX(x - i);
+                                        noteLocation.setZ(z);
+                                        break;
+                                    case 1: // z-
+                                        noteLocation.setX(x);
+                                        noteLocation.setZ(z - i);
+                                        break;
+                                    case 2: // x+
+                                        noteLocation.setX(x + i);
+                                        noteLocation.setZ(z);
+                                        break;
+                                    case 3: // z+
+                                        noteLocation.setX(x);
+                                        noteLocation.setZ(z + i);
+                                        break;
+                                }
+                                targetPlayer.sendBlockChange(noteLocation, Material.AIR, (byte) 0);
+                            }
+                            cancel();
+                        }
                     }
                 };
                 tracks.add(updateTick);
+
+//                BukkitRunnable updateParticles = new BukkitRunnable() {
+//                    @Override
+//                    public void run() {
+//                        while (isRunning){
+//                            for(int i=0;i<particles.size();++i){
+//                                targetPlayer.spawnParticle(Particle.NOTE,particles.get(i),1);
+//
+//                                particles.get(i).setY(particles.get(i).getBlockY()-0.5);
+//
+//                                if(particles.get(i).getY()<=1){
+//                                    particles.remove(i);
+//                                    i--;
+//                                }
+//                            }
+//                            try {
+//                                Thread.sleep(50);
+//                            } catch (InterruptedException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                };
+//
+//                tracks.add(updateParticles);
 
                 for(int i = 0;i<=trackCount;++i){
                     int finalI = i;
@@ -276,12 +391,64 @@ public class PlayMidi {
                                     //targetPlayer.sendMessage(String.valueOf(event.get(0))+" "+event.get(1)+ " " + event.get(2));
                                     if (musicalInstrument <= 7 || (musicalInstrument >= 16 && musicalInstrument <= 23)) {
                                         //MidiPlayer.getInstance().getLogger().info(String.valueOf(nowTick)+" "+String.valueOf(tick));
+                                        Location noteLocation = targetPlayer.getLocation();
                                         if (event.size() == 3) {
                                             PlayNote.playNote(targetPlayer, event.get(1), event.get(2), resourcePack);
                                             //targetPlayer.sendMessage("[Debug] Note: " + event.get(1) + " Strength: " + PlayNote.getStrength(event.get(2)) + " " + event.get(2));
+                                            if(useDisplayFunction) {
+
+                                                noteLocation.setY(y + 10);
+                                                switch (yaw) {
+                                                    case 0: // x-
+                                                        noteLocation.setX(x - event.get(1));
+                                                        noteLocation.setZ(z + PlayNote.getStrength_num(event.get(2)));
+                                                        break;
+                                                    case 1: // z-
+                                                        noteLocation.setX(x - PlayNote.getStrength_num(event.get(2)));
+                                                        noteLocation.setZ(z - event.get(1));
+                                                        break;
+                                                    case 2: // x+
+                                                        noteLocation.setX(x + event.get(1));
+                                                        noteLocation.setZ(z - PlayNote.getStrength_num(event.get(2)));
+                                                        break;
+                                                    case 3: // z+
+                                                        noteLocation.setX(x + PlayNote.getStrength_num(event.get(2)));
+                                                        noteLocation.setZ(z + event.get(1));
+                                                        break;
+                                                }
+//                                                particles.add(noteLocation);
+                                            }
                                         } else {
                                             PlayNote.playNote(targetPlayer, event.get(1), 127, resourcePack);
+
+                                            if (useDisplayFunction) {
+
+                                                noteLocation.setY(y + 10);
+                                                switch (yaw) {
+                                                    case 0: // x-
+                                                        noteLocation.setX(x - event.get(1));
+                                                        noteLocation.setZ(z);
+                                                        break;
+                                                    case 1: // z-
+                                                        noteLocation.setX(x);
+                                                        noteLocation.setZ(z - event.get(1));
+                                                        break;
+                                                    case 2: // x+
+                                                        noteLocation.setX(x + event.get(1));
+                                                        noteLocation.setZ(z);
+                                                        break;
+                                                    case 3: // z+
+                                                        noteLocation.setX(x);
+                                                        noteLocation.setZ(z + event.get(1));
+                                                        break;
+                                                }
+                                            }
                                         }
+
+                                        NoteParticle noteParticle = new NoteParticle(noteLocation);
+                                        noteParticle.start(MidiPlayer.getInstance(),50,1);
+                                        PlayingNoteParticles.playingNoteParticles.add(noteParticle);
+
                                     } else {
                                         targetPlayer.sendMessage("Invalid musical instrument:" + musicalInstrument);
                                     }

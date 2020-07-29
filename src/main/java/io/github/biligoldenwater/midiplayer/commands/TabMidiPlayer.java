@@ -25,6 +25,7 @@ public class TabMidiPlayer {
                         if(CheckPermissions.hasPermissions(sender,"midiplayer.commands.play") && "play".startsWith(args[0]))completions.add("play");
                         if(CheckPermissions.hasPermissions(sender,"midiplayer.commands.stop") && "stop".startsWith(args[0]))completions.add("stop");
                         if(CheckPermissions.hasPermissions(sender,"midiplayer.commands.toggleprogressbar") && "toggleprogressbar".startsWith(args[0]))completions.add("toggleprogressbar");
+                        if(CheckPermissions.hasPermissions(sender,"midiplayer.commands.toggledisplayfunction") && "toggledisplayfunction".startsWith(args[0]))completions.add("toggledisplayfunction");
                         if(CheckPermissions.hasPermissions(sender,"midiplayer.commands.resourcepacks") && "resourcepacks".startsWith(args[0]))completions.add("resourcepacks");
                         if(CheckPermissions.hasPermissions(sender,"midiplayer.commands.reload") && "reload".startsWith(args[0]))completions.add("reload");
                         return completions;

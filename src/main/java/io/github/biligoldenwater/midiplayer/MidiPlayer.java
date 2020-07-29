@@ -1,8 +1,10 @@
 package io.github.biligoldenwater.midiplayer;
 
 import io.github.biligoldenwater.midiplayer.api.PlayingMidis;
+import io.github.biligoldenwater.midiplayer.api.PlayingNoteParticles;
 import io.github.biligoldenwater.midiplayer.commands.CommandMidiPlayer;
 import io.github.biligoldenwater.midiplayer.commands.TabMidiPlayer;
+import io.github.biligoldenwater.midiplayer.listener.OnPlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MidiPlayer extends JavaPlugin {
@@ -17,6 +19,7 @@ public final class MidiPlayer extends JavaPlugin {
         saveDefaultConfig();
         instance = this;
         musicsPathName = getDataFolder().getPath() + "\\musics";
+        getServer().getPluginManager().registerEvents(new OnPlayerQuitEvent(),this);
         CommandMidiPlayer.registerCommandMidiPlayer();
         TabMidiPlayer.registerTabMidiPlayer();
         // End of init
@@ -37,10 +40,18 @@ public final class MidiPlayer extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        PlayingNoteParticles.playingNoteParticles.forEach(noteParticle -> { // 遍历所有播放中的音符粒子效果并停止它们
+            if (noteParticle == null)return;
+            if (noteParticle.isRunning()){
+                noteParticle.stop();
+            }
+        });
+
         PlayingMidis.playingMidis.forEach((playerName, playMidi) -> {//遍历所有播放中的midi并停止它们
             getLogger().info(" Force stop midi player for player:"+playerName+".");
             playMidi.stopSound();
         });
+
         getLogger().info("Disabled");//输出已禁用消息到日志
     }
 

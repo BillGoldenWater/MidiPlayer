@@ -59,6 +59,25 @@ public class PlayNote {
         return "fff";
     }
 
+    public static int getStrength_num(long strength){
+        if (strength <= 20) {
+            return 7;
+        } else if (strength <= 40) {
+            return 6;
+        } else if (strength <= 50) {
+            return 5;
+        } else if (strength <= 64) {
+            return 4;
+        } else if (strength <= 70) {
+            return 3;
+        } else if (strength <= 80) {
+            return 2;
+        } else if (strength <= 90) {
+            return 1;
+        }
+        return 0;
+    }
+
     public static void stopNote(Player player, long note, long strength, byte resourcePack){
         switch (resourcePack){
             case vanilla:

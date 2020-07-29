@@ -27,6 +27,8 @@ public class CommandMidiPlayer {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 switch (args.length) {
                     case 1:
+                        FileConfiguration config;
+                        HashMapLoadAndSave hashMapLoadAndSave;
                         switch (args[0]) {
                             case "?":
                             case "？":
@@ -66,21 +68,47 @@ public class CommandMidiPlayer {
                             case "toggleprogressbar":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.toggleprogressbar"))
                                     return true;
-                                FileConfiguration config = plugin.getConfig(); // 获取配置文件
-                                HashMapLoadAndSave hashMapLoadAndSave = new HashMapLoadAndSave(); // 新建对象
+                                config = plugin.getConfig(); // 获取配置文件
+                                hashMapLoadAndSave = new HashMapLoadAndSave(); // 新建对象
 
-                                HashMap<Object, Object> configMap = hashMapLoadAndSave.loadHashMap(config, "progressbar"); // 获取数据
-                                Object isEnable = configMap.get(sender.getName()); // 获取当前切换进度条显示的玩家的数据
+                                HashMap<Object, Object> configMap_progressbar = hashMapLoadAndSave.loadHashMap(config, "progressbar"); // 获取数据
+                                Object isEnable_progressbar = configMap_progressbar.get(sender.getName()); // 获取当前切换进度条显示的玩家的数据
 
-                                if (isEnable == null || isEnable.equals(true)) { // 如果为空或为true则切换至false
+                                if (isEnable_progressbar == null || isEnable_progressbar.equals(true)) { // 如果为空或为true则切换至false
                                     sender.sendMessage("Try to toggle to off.");
-                                    isEnable = false;
-                                } else if (isEnable.equals(false)) { // 如果为false则切换至true
+                                    isEnable_progressbar = false;
+                                } else if (isEnable_progressbar.equals(false)) { // 如果为false则切换至true
                                     sender.sendMessage("Try to toggle to on.");
-                                    isEnable = true;
+                                    isEnable_progressbar = true;
                                 }
-                                configMap.put(sender.getName(), isEnable); // 将更改后的放入Map
-                                hashMapLoadAndSave.saveHashMap(config, plugin, "progressbar", configMap); // 存储到配置文件
+                                configMap_progressbar.put(sender.getName(), isEnable_progressbar); // 将更改后的放入Map
+                                hashMapLoadAndSave.saveHashMap(config, plugin, "progressbar", configMap_progressbar); // 存储到配置文件
+                                plugin.saveConfig(); // 保存配置文件
+                                sender.sendMessage("Toggled.");
+                                return true;
+                            case "toggledisplayfunction":
+                                if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.toggledisplayfunction"))
+                                    return true;
+                                config = plugin.getConfig(); // 获取配置文件
+                                hashMapLoadAndSave = new HashMapLoadAndSave(); // 新建对象
+
+                                if(!config.getBoolean("allowPlayersUseDisplayFunction",false)){
+                                    sender.sendMessage("This function doesn't enable at this server.");
+                                    return true;
+                                }
+
+                                HashMap<Object, Object> configMap_displayFunction = hashMapLoadAndSave.loadHashMap(config, "displayFunction"); // 获取数据
+                                Object isEnable_displayFunction = configMap_displayFunction.get(sender.getName()); // 获取当前切换进度条显示的玩家的数据
+
+                                if (isEnable_displayFunction == null || isEnable_displayFunction.equals(false)) { // 如果为空或为false则切换至true
+                                    sender.sendMessage("Try to toggle to on.");
+                                    isEnable_displayFunction = true;
+                                }else if (isEnable_displayFunction.equals(true)) { // 如果为true则切换至false
+                                    sender.sendMessage("Try to toggle to off.");
+                                    isEnable_displayFunction = false;
+                                }
+                                configMap_displayFunction.put(sender.getName(), isEnable_displayFunction); // 将更改后的放入Map
+                                hashMapLoadAndSave.saveHashMap(config, plugin, "displayFunction", configMap_displayFunction); // 存储到配置文件
                                 plugin.saveConfig(); // 保存配置文件
                                 sender.sendMessage("Toggled.");
                                 return true;
@@ -103,14 +131,12 @@ public class CommandMidiPlayer {
                                 MSGSPiano.addText("[Download]");
                                 MSGSPiano.setBold("[Download]",true);
                                 MSGSPiano.setColor("[Download]",ColorNames.aqua);
-                                MSGSPiano.setUnderlined("[Download]",true);
                                 MSGSPiano.addHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,clickToDownload.getJsonArray());
                                 MSGSPiano.addClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.mcbbs.net/thread-733975-1-1.html");
 
                                 RealPiano.addText("[Download]");
                                 RealPiano.setBold("[Download]",true);
                                 RealPiano.setColor("[Download]",ColorNames.gray);
-                                RealPiano.setUnderlined("[Download]",true);
                                 RealPiano.addHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,downloadUnavailable.getJsonArray());
                                 RealPiano.addClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.bing.com/search?q=Minecraft+real+piano+resource+pack");
 
@@ -255,9 +281,9 @@ public class CommandMidiPlayer {
                 message.addHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "No previous page.");
                 message.addClickEvent("Previous page", JsonMessage.clickEvent.action.change_page, 1 );
             }
-            message.setColor(" | ",ColorNames.reset);
+            message.setColor(" | ",ColorNames.gray);
             message.addHoverEvent(" | ", JsonMessage.hoverEvent.action.show_text, "Split line.");
-            message.addClickEvent(" | ", JsonMessage.clickEvent.action.change_page, 1 );
+            message.addClickEvent(" | ", JsonMessage.clickEvent.action.run_command, "/mp list " + page );
             if (midis.size() > 10 * page){
                 message.setColor("Next page", ColorNames.aqua);
                 message.addHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
@@ -281,13 +307,21 @@ public class CommandMidiPlayer {
         JsonMessage message = new JsonMessage("Index: " + i + " Name: " + fileName + " [");
 
         message.addText("Play");
+        message.addText("] [");
+        message.addText("Get");
         message.addText("]");
 
         message.setColor("Play", ColorNames.aqua);
-        message.addHoverEvent("Play", JsonMessage.hoverEvent.action.show_text,"Click to send command to your chat bar.");
-        message.addClickEvent("Play", JsonMessage.clickEvent.action.suggest_command, "/mp play "+i);
+        message.addHoverEvent("Play", JsonMessage.hoverEvent.action.show_text,"Click to play the midi with resource pack 2.");
+        message.addClickEvent("Play", JsonMessage.clickEvent.action.run_command, "/mp play " + i + " 2");
 
-        message.setColor("]", ColorNames.reset);
+        message.setColor("] [", ColorNames.reset);
+
+        message.setColor("Get", ColorNames.aqua);
+        message.addHoverEvent("Get", JsonMessage.hoverEvent.action.show_text,"Click to send command to your chat bar.");
+        message.addClickEvent("Get", JsonMessage.clickEvent.action.suggest_command, "/mp play " + i);
+
+        message.setColor("]",ColorNames.reset);
 
         message.sendTo(sender);
     }
@@ -322,6 +356,7 @@ public class CommandMidiPlayer {
                 sender.sendMessage("Usage: /midiplayer play <index> [resourcePackIndex] [useSoundStop] (Use this command to get more details.)");
                 sender.sendMessage("Usage: /midiplayer stop (Stop play midi.)");
                 sender.sendMessage("Usage: /midiplayer toggleprogressbar (Toggle progress bar display(Need replay).)");
+                sender.sendMessage("Usage: /midiplayer toggledisplayfunction (Toggle display function enable(Need replay).)");
                 sender.sendMessage("Usage: /midiplayer resourcepacks (Show all available resource packs)");
                 sender.sendMessage("Usage: /midiplayer reload (Reload config.)");
                 break;
@@ -345,14 +380,24 @@ public class CommandMidiPlayer {
             HashMapLoadAndSave hashMapLoadAndSave = new HashMapLoadAndSave();
             playingMidi = new PlayMidi(); // 新建播放器
             boolean useProgressBar = true;
+            boolean useDisplayFunction = false;
 
             try {// 尝试转换至boolean
                 useProgressBar = (boolean) hashMapLoadAndSave.loadHashMap(config,"progressbar").get(sender.getName());
             } catch (Exception ignored){
             }
 
-            playingMidi.initMidi(plugin, (Player) sender, midis.get(index)); // 初始化midi播放器
-            playingMidi.playMidi((Player) sender,useSoundStop,resourcePack, useProgressBar); // 播放
+            try {// 尝试转换至boolean
+                useDisplayFunction = (boolean) hashMapLoadAndSave.loadHashMap(config,"displayFunction").get(sender.getName());
+            } catch (Exception ignored){
+            }
+
+            if(!config.getBoolean("allowPlayersUseDisplayFunction",false)){
+                useDisplayFunction = false;
+            }
+
+            playingMidi.initMidi(plugin, (Player) sender, midis.get(index), useDisplayFunction); // 初始化midi播放器
+            playingMidi.playMidi((Player) sender,useSoundStop,resourcePack, useProgressBar, useDisplayFunction); // 播放
 
             PlayingMidis.playingMidis.put(sender.getName(),playingMidi); // 将播放器放入正在播放map
         } else {

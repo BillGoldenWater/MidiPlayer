@@ -32,6 +32,9 @@ permissions:
           midiplayer.commands.toggleprogressbar:
             description: Command for toggle progress bar display.
             default: true
+          midiplayer.commands.toggledisplayfunction:
+            description: Command for toggle display function.
+            default: op
           midiplayer.commands.resourcepacks:
             description: Command for show all available resource packs.
             default: true
