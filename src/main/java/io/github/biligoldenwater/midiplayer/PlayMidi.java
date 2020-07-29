@@ -230,20 +230,20 @@ public class PlayMidi {
             float yaw = location.getYaw();
 
             if (yaw > -45 && yaw < 45) {
-                x = location.getX() + (65);
-                z = location.getZ() + (25);
+                x = location.getBlockX() + (65);
+                z = location.getBlockZ() + (25);
                 this.yaw = 0; // x-
             } else if (yaw > 90 - 45 && yaw < 90 + 45) {
-                x = location.getX() + (-25);
-                z = location.getZ() + (65);
+                x = location.getBlockX() + (-25);
+                z = location.getBlockZ() + (65);
                 this.yaw = 1; // z-
             } else if (yaw > -90 - 45 && yaw < -90 + 45) {
-                x = location.getX() + (25);
-                z = location.getZ() + (-65);
+                x = location.getBlockX() + (25);
+                z = location.getBlockZ() + (-65);
                 this.yaw = 3; // z+
             } else {
-                x = location.getX() + (-65);
-                z = location.getZ() + (-25);
+                x = location.getBlockX() + (-65);
+                z = location.getBlockZ() + (-25);
                 this.yaw = 2; // x+
             }
             y = location.getY();
