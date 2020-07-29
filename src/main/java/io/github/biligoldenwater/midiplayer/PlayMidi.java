@@ -77,7 +77,7 @@ public class PlayMidi {
 //                            midiData.put("trackCount",a);
 //                            trackID++;
 //                        }
-//                    }s
+//                    }
 
                     List<Long> event = new ArrayList<>();
 
@@ -200,6 +200,7 @@ public class PlayMidi {
                     if (!event.isEmpty()) {
                         trackData.add(event);
                     }
+
                 }
                 if (!trackData.isEmpty()) {
                     if(i!=0){
