@@ -446,9 +446,11 @@ public class PlayMidi {
                                             }
                                         }
 
-                                        NoteParticle noteParticle = new NoteParticle(noteLocation);
-                                        noteParticle.start(MidiPlayer.getInstance(),50,1);
-                                        PlayingNoteParticles.playingNoteParticles.add(noteParticle);
+                                        if(useDisplayFunction) {
+                                            NoteParticle noteParticle = new NoteParticle(noteLocation);
+                                            noteParticle.start(MidiPlayer.getInstance(), 50, 1);
+                                            PlayingNoteParticles.playingNoteParticles.add(noteParticle);
+                                        }
 
                                     } else {
                                         targetPlayer.sendMessage("Invalid musical instrument:" + musicalInstrument);
