@@ -7,18 +7,57 @@ import io.github.biligoldenwater.midiplayer.commands.TabMidiPlayer;
 import io.github.biligoldenwater.midiplayer.listener.OnPlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 public final class MidiPlayer extends JavaPlugin {
 
     private static MidiPlayer instance;
-    private static String musicsPathName;
+    private static File musicsPath;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         // Init plugin
-        saveDefaultConfig();
+        saveDefaultConfig(); // 创建默认配置文件
         instance = this;
-        musicsPathName = getDataFolder().getPath() + "\\musics";
+
+        File[] filesInDataFolder = getDataFolder().listFiles(); // 获取数据文件夹内所有目录和文件
+        if(filesInDataFolder != null){ // 如果数据文件夹不为空
+            boolean isMusicsPathExists = false;
+
+            for (File file : filesInDataFolder){
+                if (file.getName().equalsIgnoreCase("musics") && file.isDirectory()){ // 如果名字为music并且为一个目录则
+                    musicsPath = file;
+                    isMusicsPathExists = true;
+                    break;
+
+                } else if (file.getName().equalsIgnoreCase("musics") && !file.isDirectory()){ // 如果名字为music并且不为一个目录则
+                    if (file.delete()){ // 删除该文件
+                        if(file.mkdir()){ // 创建目录
+                            musicsPath = file;
+                            isMusicsPathExists = true;
+                            break;
+
+                        } else {
+                            getLogger().warning("Fail to create musics folder."); // 创建失败
+
+                        }
+
+                    } else {
+                        getLogger().warning("Fail to delete a same name file for musics folder."); // 删除失败
+
+                    }
+                }
+            }
+            if (!isMusicsPathExists){
+                musicsPath = new File(getDataFolder().getPath() + "/musics");
+                if(!musicsPath.mkdirs()){
+                    getLogger().warning("Fail to create musics folder.");
+                    musicsPath = null;
+                }
+            }
+        }
+
         getServer().getPluginManager().registerEvents(new OnPlayerQuitEvent(),this);
         CommandMidiPlayer.registerCommandMidiPlayer();
         TabMidiPlayer.registerTabMidiPlayer();
@@ -55,8 +94,8 @@ public final class MidiPlayer extends JavaPlugin {
         getLogger().info("Disabled");//输出已禁用消息到日志
     }
 
-    public static String getMusicsPathName(){
-        return musicsPathName;
+    public static File getMusicsPath(){
+        return musicsPath;
     }
 
     public static MidiPlayer getInstance(){

@@ -38,7 +38,7 @@ public class CommandMidiPlayer {
                                 return true;
                             case "list":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.list")) return true;
-                                List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPathName()); // 获取所有Midi文件
+                                List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPath()); // 获取所有Midi文件
 
                                 sendMidisListWithMultiplePage(sender,midis,1); // 发送列表
                                 return true;
@@ -158,7 +158,7 @@ public class CommandMidiPlayer {
                     case 2:
                         if(args[0].equals("list")){
                             if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.list")) return true;
-                            List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPathName()); // 获取所有Midi文件
+                            List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPath()); // 获取所有Midi文件
 
                             int page;
 
@@ -303,6 +303,7 @@ public class CommandMidiPlayer {
         String fileName = midis.get(i).getName(); // 获取文件名
         fileName = fileName.replaceAll(".mid", ""); // 删除后缀
         fileName = fileName.replace(".midi", "");
+        //fileName = SplitString.splitString("\\",fileName)[SplitString.splitString("\\",fileName).length-1];
 
         JsonMessage message = new JsonMessage("Index: " + i + " Name: " + fileName + " [");
 
@@ -373,7 +374,7 @@ public class CommandMidiPlayer {
             sender.sendMessage("Stopped.");
         }
 
-        List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPathName()); // 获取所有Midi文件
+        List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPath()); // 获取所有Midi文件
 
         if(midis.size()-1 >= index){ // 如果索引不大于总midi数量则
             FileConfiguration config = plugin.getConfig();

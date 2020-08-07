@@ -31,7 +31,7 @@ public class TabMidiPlayer {
                         return completions;
                     case 2:
                         if(args[0].equals("play")) {
-                            for (int i = 0; i < GetMidis.getMidis(MidiPlayer.getMusicsPathName()).size(); ++i) {
+                            for (int i = 0; i < GetMidis.getMidis(MidiPlayer.getMusicsPath()).size(); ++i) {
                                 if(String.valueOf(i).startsWith(args[1])){
                                     completions.add(String.valueOf(i));
                                 }
