@@ -20,7 +20,44 @@ public final class MidiPlayer extends JavaPlugin {
         // Init plugin
         saveDefaultConfig(); // 创建默认配置文件
         instance = this;
+        initMusicsPath();
+        getServer().getPluginManager().registerEvents(new OnPlayerQuitEvent(),this);
+        CommandMidiPlayer.registerCommandMidiPlayer();
+        TabMidiPlayer.registerTabMidiPlayer();
+        // End of init
 
+//        getLogger().info(musicsPathName);
+//        getLogger().info(String.valueOf(GetMidis.getMidis(musicsPathName)));
+//
+//        List<File> midis = GetMidis.getMidis(musicsPathName);
+//
+//        PlayingMidis.playingMidis.put("Golden_Water",new PlayMidi());
+//
+//        PlayingMidis.playingMidis.get("Golden_Water").initMidi(this,midis.get(0));
+//        PlayingMidis.playingMidis.get("Golden_Water").playMidi(getServer().getPlayer("Golden_Water"), false, PlayNote.realPiano);
+
+        getLogger().info("Enabled");//输出已启用消息到日志
+    }
+
+    @Override
+    public void onDisable() {
+        // Plugin shutdown logic
+        PlayingNoteParticles.playingNoteParticles.forEach(noteParticle -> { // 遍历所有播放中的音符粒子效果并停止它们
+            if (noteParticle == null)return;
+            if (noteParticle.isRunning()){
+                noteParticle.stop();
+            }
+        });
+
+        PlayingMidis.playingMidis.forEach((playerName, playMidi) -> {//遍历所有播放中的midi并停止它们
+            getLogger().info(" Force stop midi player for player:"+playerName+".");
+            playMidi.stopSound();
+        });
+
+        getLogger().info("Disabled");//输出已禁用消息到日志
+    }
+
+    private void initMusicsPath() {
         File[] filesInDataFolder = getDataFolder().listFiles(); // 获取数据文件夹内所有目录和文件
         if(filesInDataFolder != null){ // 如果数据文件夹不为空
             boolean isMusicsPathExists = false;
@@ -57,41 +94,6 @@ public final class MidiPlayer extends JavaPlugin {
                 }
             }
         }
-
-        getServer().getPluginManager().registerEvents(new OnPlayerQuitEvent(),this);
-        CommandMidiPlayer.registerCommandMidiPlayer();
-        TabMidiPlayer.registerTabMidiPlayer();
-        // End of init
-
-//        getLogger().info(musicsPathName);
-//        getLogger().info(String.valueOf(GetMidis.getMidis(musicsPathName)));
-//
-//        List<File> midis = GetMidis.getMidis(musicsPathName);
-//
-//        PlayingMidis.playingMidis.put("Golden_Water",new PlayMidi());
-//
-//        PlayingMidis.playingMidis.get("Golden_Water").initMidi(this,midis.get(0));
-//        PlayingMidis.playingMidis.get("Golden_Water").playMidi(getServer().getPlayer("Golden_Water"), false, PlayNote.realPiano);
-
-        getLogger().info("Enabled");//输出已启用消息到日志
-    }
-
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
-        PlayingNoteParticles.playingNoteParticles.forEach(noteParticle -> { // 遍历所有播放中的音符粒子效果并停止它们
-            if (noteParticle == null)return;
-            if (noteParticle.isRunning()){
-                noteParticle.stop();
-            }
-        });
-
-        PlayingMidis.playingMidis.forEach((playerName, playMidi) -> {//遍历所有播放中的midi并停止它们
-            getLogger().info(" Force stop midi player for player:"+playerName+".");
-            playMidi.stopSound();
-        });
-
-        getLogger().info("Disabled");//输出已禁用消息到日志
     }
 
     public static File getMusicsPath(){

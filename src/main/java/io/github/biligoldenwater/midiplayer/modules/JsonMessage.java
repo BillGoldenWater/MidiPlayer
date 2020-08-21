@@ -7,15 +7,14 @@ package io.github.biligoldenwater.midiplayer.modules;
 
 import com.alibaba.fastjson.JSONObject;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class JsonMessage {
-    private HashMap<String,JsonMessageSingle> message = new HashMap<>();
-    private List<String> texts = new ArrayList<>();
+    private final HashMap<String,JsonMessageSingle> message = new HashMap<>();
+    private final List<String> texts = new ArrayList<>();
 
     public JsonMessage(String text){
         message.put(text, new JsonMessageSingle(text));
@@ -104,40 +103,30 @@ public class JsonMessage {
 
     public List<JSONObject> getJsonArray(){
         List<JSONObject> output = new ArrayList<>();
-        message.forEach((s, jsonMessageSingle) -> output.add(jsonMessageSingle.getJSONObject()));
+
+        for (String textName : texts){
+            output.add(message.get(textName).getJSONObject());
+        }
+
         return output;
     }
 
     public String getJsonText(){
         List<String> output = new ArrayList<>();
-        message.forEach((s, jsonMessageSingle) -> output.add(jsonMessageSingle.getStringOutput()));
+
+        for (String textName : texts){
+            output.add(message.get(textName).getStringOutput());
+        }
+
         return output.toString();
     }
 
     public String getCommand(CommandSender sender){
-        List<String> output = new ArrayList<>();
-        message.forEach((s, jsonMessageSingle) -> output.add(jsonMessageSingle.getStringOutput()));
-        return "tellraw "+sender.getName()+" "+output.toString();
+        return "tellraw "+sender.getName()+" "+this.getJsonText();
     }
 
     public void sendTo(CommandSender sender){
-        List<String> output = new ArrayList<>();
-
-        for (String textName : texts){
-            output.add(message.get(textName).getStringOutput());
-        }
-
-        sender.getServer().dispatchCommand(sender.getServer().getConsoleSender(),"tellraw "+sender.getName()+" "+output.toString());
-    }
-
-    public void sendTo(Player player){
-        List<String> output = new ArrayList<>();
-
-        for (String textName : texts){
-            output.add(message.get(textName).getStringOutput());
-        }
-
-        player.getServer().dispatchCommand(player.getServer().getConsoleSender(),"tellraw "+player.getName()+" "+output.toString());
+        sender.getServer().dispatchCommand(sender.getServer().getConsoleSender(),this.getCommand(sender));
     }
 
     public class JsonMessageSingle {

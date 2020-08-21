@@ -3,14 +3,12 @@ package io.github.biligoldenwater.midiplayer;
 import io.github.biligoldenwater.midiplayer.api.PlayingNoteParticles;
 import io.github.biligoldenwater.midiplayer.modules.NoteParticle;
 import io.github.biligoldenwater.midiplayer.modules.PlayNote;
+import io.github.biligoldenwater.midiplayer.modules.SendActionBar;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
@@ -494,12 +492,14 @@ public class PlayMidi {
                                 }
                                 //targetPlayer.sendMessage(String.valueOf(event.get(0))+event.get(1));
                                 if(useProgressBar){
-                                    targetPlayer.sendTitle( "§r", "["+progressBar+"] "+((int) (percent*100) * 1.0 /100) + "%", 0, 100, 0);
+                                    SendActionBar.sendActionBar(targetPlayer,"["+progressBar+"] "+((int) (percent*100) * 1.0 /100) + "%");
+                                    //targetPlayer.sendTitle( "§r", "["+progressBar+"] "+((int) (percent*100) * 1.0 /100) + "%", 0, 100, 0);
                                 }
                                 i++;
                             }
                             if(useProgressBar){
-                                targetPlayer.sendTitle( "§r", "§r",0,0,0);
+                                SendActionBar.sendActionBar(targetPlayer,"§r");
+                                //targetPlayer.sendTitle( "§r", "§r",0,0,0);
                             }
                             cancel();
                         }
