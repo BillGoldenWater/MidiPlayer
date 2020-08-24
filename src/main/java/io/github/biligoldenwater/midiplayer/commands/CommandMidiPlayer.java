@@ -131,14 +131,14 @@ public class CommandMidiPlayer {
                                 MSGSPiano.addText("[Download]");
                                 MSGSPiano.setBold("[Download]",true);
                                 MSGSPiano.setColor("[Download]",ColorNames.aqua);
-                                MSGSPiano.addHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,clickToDownload.getJsonArray());
-                                MSGSPiano.addClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.mcbbs.net/thread-733975-1-1.html");
+                                MSGSPiano.setHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,clickToDownload.getJsonArray());
+                                MSGSPiano.setClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.mcbbs.net/thread-733975-1-1.html");
 
                                 RealPiano.addText("[Download]");
                                 RealPiano.setBold("[Download]",true);
                                 RealPiano.setColor("[Download]",ColorNames.gray);
-                                RealPiano.addHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,downloadUnavailable.getJsonArray());
-                                RealPiano.addClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.bing.com/search?q=Minecraft+real+piano+resource+pack");
+                                RealPiano.setHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,downloadUnavailable.getJsonArray());
+                                RealPiano.setClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.bing.com/search?q=Minecraft+real+piano+resource+pack");
 
                                 Vanilla.sendTo(sender);
                                 MSGSPiano.sendTo(sender);
@@ -274,24 +274,24 @@ public class CommandMidiPlayer {
 
             if (page>1){
                 message.setColor("Previous page", ColorNames.aqua);
-                message.addHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
-                message.addClickEvent("Previous page", JsonMessage.clickEvent.action.run_command, "/mp list "+ (page-1) );
+                message.setHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
+                message.setClickEvent("Previous page", JsonMessage.clickEvent.action.run_command, "/mp list "+ (page-1) );
             } else {
                 message.setColor("Previous page", ColorNames.gray);
-                message.addHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "No previous page.");
-                message.addClickEvent("Previous page", JsonMessage.clickEvent.action.change_page, 1 );
+                message.setHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "No previous page.");
+                message.setClickEvent("Previous page", JsonMessage.clickEvent.action.change_page, 1 );
             }
             message.setColor(" | ",ColorNames.gray);
-            message.addHoverEvent(" | ", JsonMessage.hoverEvent.action.show_text, "Split line.");
-            message.addClickEvent(" | ", JsonMessage.clickEvent.action.run_command, "/mp list " + page );
+            message.setHoverEvent(" | ", JsonMessage.hoverEvent.action.show_text, "Split line.");
+            message.setClickEvent(" | ", JsonMessage.clickEvent.action.run_command, "/mp list " + page );
             if (midis.size() > 10 * page){
                 message.setColor("Next page", ColorNames.aqua);
-                message.addHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
-                message.addClickEvent("Next page", JsonMessage.clickEvent.action.run_command, "/mp list " + (page+1) );
+                message.setHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
+                message.setClickEvent("Next page", JsonMessage.clickEvent.action.run_command, "/mp list " + (page+1) );
             } else {
                 message.setColor("Next page", ColorNames.gray);
-                message.addHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "No next page.");
-                message.addClickEvent("Next page", JsonMessage.clickEvent.action.change_page, 1 );
+                message.setHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "No next page.");
+                message.setClickEvent("Next page", JsonMessage.clickEvent.action.change_page, 1 );
             }
 
             message.sendTo(sender);
@@ -313,14 +313,14 @@ public class CommandMidiPlayer {
         message.addText("]");
 
         message.setColor("Play", ColorNames.aqua);
-        message.addHoverEvent("Play", JsonMessage.hoverEvent.action.show_text,"Click to play the midi with resource pack 2.");
-        message.addClickEvent("Play", JsonMessage.clickEvent.action.run_command, "/mp play " + i + " 2");
+        message.setHoverEvent("Play", JsonMessage.hoverEvent.action.show_text,"Click to play the midi with resource pack 2.");
+        message.setClickEvent("Play", JsonMessage.clickEvent.action.run_command, "/mp play " + i + " 2");
 
         message.setColor("] [", ColorNames.reset);
 
         message.setColor("Get", ColorNames.aqua);
-        message.addHoverEvent("Get", JsonMessage.hoverEvent.action.show_text,"Click to send command to your chat bar.");
-        message.addClickEvent("Get", JsonMessage.clickEvent.action.suggest_command, "/mp play " + i);
+        message.setHoverEvent("Get", JsonMessage.hoverEvent.action.show_text,"Click to send command to your chat bar.");
+        message.setClickEvent("Get", JsonMessage.clickEvent.action.suggest_command, "/mp play " + i);
 
         message.setColor("]",ColorNames.reset);
 

@@ -6,7 +6,10 @@
 package io.github.biligoldenwater.midiplayer.modules;
 
 import com.alibaba.fastjson.JSONObject;
+import net.minecraft.server.v1_12_R1.IChatBaseComponent;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,18 +86,18 @@ public class JsonMessage {
         }
     }
 
-    public boolean addHoverEvent(String text, String action_type, Object value){
+    public boolean setHoverEvent(String text, String action_type, Object value){
         try {
-            this.message.get(text).addHoverEvent(action_type, value);
+            this.message.get(text).setHoverEvent(action_type, value);
             return true;
         } catch (NullPointerException e){
             return false;
         }
     }
 
-    public boolean addClickEvent(String text, String action_type, Object value){
+    public boolean setClickEvent(String text, String action_type, Object value){
         try {
-            this.message.get(text).addClickEvent(action_type, value);
+            this.message.get(text).setClickEvent(action_type, value);
             return true;
         } catch (NullPointerException e){
             return false;
@@ -126,7 +129,11 @@ public class JsonMessage {
     }
 
     public void sendTo(CommandSender sender){
-        sender.getServer().dispatchCommand(sender.getServer().getConsoleSender(),this.getCommand(sender));
+        if(sender instanceof Player){
+            ((CraftPlayer) sender).getHandle().sendMessage(IChatBaseComponent.ChatSerializer.a(this.getJsonText()));
+        } else {
+            sender.getServer().dispatchCommand(sender.getServer().getConsoleSender(),this.getCommand(sender));
+        }
     }
 
     public class JsonMessageSingle {
@@ -173,14 +180,14 @@ public class JsonMessage {
             this.text.put("obfuscated",obfuscated);
         }
 
-        public void addHoverEvent(String action_type, Object value){
+        public void setHoverEvent(String action_type, Object value){
             JsonMessageSingle json = new JsonMessageSingle();
             json.text.put("action",action_type);
             json.text.put("value",value);
             this.text.put("hoverEvent",json.text);
         }
 
-        public void addClickEvent(String action_type, Object value){
+        public void setClickEvent(String action_type, Object value){
             JsonMessageSingle json = new JsonMessageSingle();
             json.text.put("action",action_type);
             json.text.put("value",value);

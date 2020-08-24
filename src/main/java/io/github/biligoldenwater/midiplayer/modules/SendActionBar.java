@@ -1,3 +1,8 @@
+//<dependency>
+//    <groupId>org.bukkit</groupId>
+//    <artifactId>craftbukkit</artifactId>
+//    <version>1.12.2-R0.1-SNAPSHOT</version>
+//</dependency>
 package io.github.biligoldenwater.midiplayer.modules;
 
 import net.minecraft.server.v1_12_R1.*;
