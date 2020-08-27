@@ -5,7 +5,7 @@
     - [使用方法](#使用方法)
 - [English](#English)
     - [Introduction](#Introduction)
-    - [Server requirements](#Server%20requirements)
+    - [Server requirements](MidiPlayer#Server requirements)
     - [Usage](#Usage)
 
 ## 简体中文
@@ -32,7 +32,7 @@ Minecraft版本目前仅支持1.12.2.
 
 A Minecraft plugin for play midi.
 
-### Server%20requirements
+### Server requirements
 
 Can load plugin of use Bukkit API(Example: CraftBukkit Spigot).
 
