@@ -24,7 +24,7 @@ Minecraft版本目前仅支持1.12.2.
 
 下载后放入服务器plugins文件夹内重启/启动服务器即可.
 
-更多详细信息请前往wiki页面.
+更多详细信息请前往wiki页面(未完成).
 
 ## English
 
@@ -42,6 +42,6 @@ Only support Minecraft version 1.12.2 now.
 
 After downloading, put it into the server plugins folder and restart/start the server.
 
-For more details, please go to the wiki page.
+For more details, please go to the wiki page(unfinished).
 
 
