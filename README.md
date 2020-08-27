@@ -22,7 +22,7 @@ Minecraft版本目前仅支持1.12.2.
 
 ### 使用方法
 
-下载后放入服务器plugins文件夹内重启/启动服务器即可.
+[下载](https://github.com/BiliGoldenWater/MidiPlayer/releases) 后放入服务器plugins文件夹内重启/启动服务器即可.
 
 更多详细信息请前往wiki页面(未完成).
 
@@ -40,7 +40,7 @@ Only support Minecraft version 1.12.2 now.
 
 ### Usage
 
-After downloading, put it into the server plugins folder and restart/start the server.
+After [downloading](https://github.com/BiliGoldenWater/MidiPlayer/releases), put it into the server plugins folder and restart/start the server.
 
 For more details, please go to the wiki page(unfinished).
 
