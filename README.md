@@ -5,7 +5,7 @@
     - [使用方法](#使用方法)
 - [English](#English)
     - [Introduction](#Introduction)
-    - [Server requirements](#Server requirements)
+    - [Server requirements](#Server%20requirements)
     - [Usage](#Usage)
 
 ## 简体中文
