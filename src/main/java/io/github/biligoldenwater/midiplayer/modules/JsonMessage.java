@@ -136,7 +136,7 @@ public class JsonMessage {
         }
     }
 
-    public class JsonMessageSingle {
+    public static class JsonMessageSingle {
         private final JSONObject text = new JSONObject();
 
         public JsonMessageSingle(String text){
