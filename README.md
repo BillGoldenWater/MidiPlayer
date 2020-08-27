@@ -32,7 +32,7 @@ Minecraft版本目前仅支持1.12.2.
 
 A Minecraft plugin for play midi.
 
-### Server requirements
+### Server%20requirements
 
 Can load plugin of use Bukkit API(Example: CraftBukkit Spigot).
 
