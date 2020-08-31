@@ -42,6 +42,6 @@ Only support Minecraft version 1.12.2 now.
 
 After [downloading](https://github.com/BiliGoldenWater/MidiPlayer/releases), put it into the server plugins folder and restart/start the server.
 
-For more details, please go to the wiki page(unfinished).
+For more details, please go to the wiki page(only chinese)(unfinished).
 
 
