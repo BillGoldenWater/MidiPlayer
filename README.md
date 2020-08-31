@@ -16,7 +16,7 @@
 
 ### 服务器要求
 
-能加载使用 Bukkit API 的插件(例:CraftBukkit Spigot CatServer etc.).
+能加载使用 Bukkit API 的插件(例:CraftBukkit Spigot etc.).
 
 Minecraft版本目前仅支持1.12.2.
 
@@ -34,7 +34,7 @@ A Minecraft plugin for play midi.
 
 ### ServerRequirements
 
-Can load plugin of use Bukkit API(Example: CraftBukkit Spigot).
+Can load plugin of use Bukkit API(Example: CraftBukkit Spigot etc.).
 
 Only support Minecraft version 1.12.2 now.
 
