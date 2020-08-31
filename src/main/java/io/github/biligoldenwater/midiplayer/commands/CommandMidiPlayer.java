@@ -36,12 +36,14 @@ public class CommandMidiPlayer {
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.help")) return true;
                                 sendHelpMessages(sender, fullHelp); // 发送完整帮助信息
                                 return true;
+
                             case "list":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.list")) return true;
                                 List<File> midis = GetMidis.getMidis(MidiPlayer.getMusicsPath()); // 获取所有Midi文件
 
                                 sendMidisListWithMultiplePage(sender,midis,1); // 发送列表
                                 return true;
+
                             case "play":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.play")) return true;
                                 if (!(sender instanceof Player)) { // 判断是否玩家
@@ -50,6 +52,7 @@ public class CommandMidiPlayer {
                                 }
                                 sendHelpMessages(sender, subCommandPlay); // 发送该命令的帮助信息
                                 return true;
+
                             case "stop":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.stop")) return true;
                                 if (!(sender instanceof Player)) { // 判断是否玩家
@@ -65,6 +68,7 @@ public class CommandMidiPlayer {
                                     sender.sendMessage("Can't stop,because it doesn't playing.");
                                 }
                                 return true;
+
                             case "toggleprogressbar":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.toggleprogressbar"))
                                     return true;
@@ -86,6 +90,7 @@ public class CommandMidiPlayer {
                                 plugin.saveConfig(); // 保存配置文件
                                 sender.sendMessage("Toggled.");
                                 return true;
+
                             case "toggledisplayfunction":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.toggledisplayfunction"))
                                     return true;
@@ -107,45 +112,50 @@ public class CommandMidiPlayer {
                                     sender.sendMessage("Try to toggle to off.");
                                     isEnable_displayFunction = false;
                                 }
+
                                 configMap_displayFunction.put(sender.getName(), isEnable_displayFunction); // 将更改后的放入Map
                                 hashMapLoadAndSave.saveHashMap(config, plugin, "displayFunction", configMap_displayFunction); // 存储到配置文件
                                 plugin.saveConfig(); // 保存配置文件
                                 sender.sendMessage("Toggled.");
                                 return true;
+
                             case "resourcepacks":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.resourcepacks")) return true;
 
                                 sender.sendMessage("There is all support resourcepacks:");
 
-                                JsonMessage clickToDownload = new JsonMessage("Click to download.");
-                                JsonMessage downloadUnavailable = new JsonMessage("Doesn't have download link,click to search.");
-                                clickToDownload.setBold("Click to download.",true);
-                                clickToDownload.setColor("Click to download.",ColorNames.aqua);
-                                downloadUnavailable.setBold("Doesn't have download link,click to search.",true);
-                                downloadUnavailable.setColor("Doesn't have download link,click to search,",ColorNames.gray);
+                                JsonMessage clickToDownload = new JsonMessage();
+                                JsonMessage downloadUnavailable = new JsonMessage();
+
+                                clickToDownload.addText("Click to download.")
+                                        .setBold(true)
+                                        .setColor(ColorNames.aqua);
+                                downloadUnavailable.addText("Doesn't have download link, click to search.")
+                                        .setBold(true)
+                                        .setColor(ColorNames.gray);
 
                                 JsonMessage Vanilla = new JsonMessage("Index: 0 Vanilla");
                                 JsonMessage MSGSPiano = new JsonMessage("Index: 1 MSGS Piano ");
                                 JsonMessage RealPiano = new JsonMessage("Index: 2 Real Piano ");
 
-                                MSGSPiano.addText("[Download]");
-                                MSGSPiano.setBold("[Download]",true);
-                                MSGSPiano.setColor("[Download]",ColorNames.aqua);
-                                MSGSPiano.setHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,clickToDownload.getJsonArray());
-                                MSGSPiano.setClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.mcbbs.net/thread-733975-1-1.html");
+                                MSGSPiano.addText("[Download]")
+                                        .setBold(true)
+                                        .setColor(ColorNames.aqua)
+                                        .setHoverEvent(JsonMessage.hoverEvent.action.show_text,clickToDownload.getJsonArray())
+                                        .setClickEvent(JsonMessage.clickEvent.action.open_url,"https://www.mcbbs.net/thread-733975-1-1.html");
 
-                                RealPiano.addText("[Download]");
-                                RealPiano.setBold("[Download]",true);
-                                RealPiano.setColor("[Download]",ColorNames.gray);
-                                RealPiano.setHoverEvent("[Download]",JsonMessage.hoverEvent.action.show_text,downloadUnavailable.getJsonArray());
-                                RealPiano.setClickEvent("[Download]",JsonMessage.clickEvent.action.open_url,"https://www.bing.com/search?q=Minecraft+real+piano+resource+pack");
+                                RealPiano.addText("[Download]")
+                                        .setBold(true)
+                                        .setColor(ColorNames.gray)
+                                        .setHoverEvent(JsonMessage.hoverEvent.action.show_text,downloadUnavailable.getJsonArray())
+                                        .setClickEvent(JsonMessage.clickEvent.action.open_url,"https://www.bing.com/search?q=Minecraft+real+piano+resource+pack");
 
                                 Vanilla.sendTo(sender);
                                 MSGSPiano.sendTo(sender);
                                 RealPiano.sendTo(sender);
 
-
                                 return true;
+
                             case "reload":
                                 if (!CheckPermissions.hasPermissions(sender, "midiplayer.commands.reload")) return true;
                                 plugin.reloadConfig(); // 重载配置
@@ -186,7 +196,7 @@ public class CommandMidiPlayer {
                             try {
                                 index = Integer.parseInt(args[1]);
                             } catch (Exception e){
-                                sender.sendMessage("Invalid midi index,please use /midiplayer list to view midi indexes.");
+                                sender.sendMessage("Invalid midi index, please use /midiplayer list to view midi indexes.");
                             }
                             if(args.length>2) {
                                 boolean isByte = true;
@@ -210,7 +220,7 @@ public class CommandMidiPlayer {
                                                     sender.sendMessage("Played.");
                                                     return true;
                                                 } catch (Exception e){
-                                                    sender.sendMessage("Invalid sound stop status,please use 1 OR 0(use OR not use)");
+                                                    sender.sendMessage("Invalid sound stop status, please use 1 OR 0(use OR not use)");
                                                 }
                                             } else {
                                                 playMidi(plugin, sender, Integer.parseInt(args[1]), false, resourcePackNum); // 如果是则用此资源包播放
@@ -218,11 +228,11 @@ public class CommandMidiPlayer {
                                             }
                                             return true;
                                         default:
-                                            sender.sendMessage("Invalid resource pack index,please use /midiplayer resourcepacks to view resource pack indexes."); // 发送错误信息
+                                            sender.sendMessage("Invalid resource pack index, please use /midiplayer resourcepacks to view resource pack indexes."); // 发送错误信息
                                             return true;
                                     }
                                 } else {
-                                    sender.sendMessage("Invalid resource pack index,please use /midiplayer resourcepacks to view resource pack indexes."); // 发送错误信息
+                                    sender.sendMessage("Invalid resource pack index, please use /midiplayer resourcepacks to view resource pack indexes."); // 发送错误信息
                                     return true;
                                 }
                             } else {
@@ -240,15 +250,17 @@ public class CommandMidiPlayer {
         });
     }
 
-    private static void sendMidisListWithMultiplePage(CommandSender sender, List<File> midis,final int page){
-        if(page <= 0){
+    private static void sendMidisListWithMultiplePage(CommandSender sender, List<File> midis,final int pageNum){
+        if(pageNum <= 0){
             sender.sendMessage("Invalid page.");
             return;
+        } else if (midis.isEmpty()){
+            sender.sendMessage("No available music.");
+            return;
         }
-        if (midis.size() > 10 * ( page - 1 ) ) { // 如果超过十个则将开头改为这里是第x页
-            sender.sendMessage("There is page "+page+":");
 
-        } else if(midis.size() <= 10) {
+
+        if (midis.size() <= 10){
             sender.sendMessage("There is all midis:");
 
             for (int i = 0; i < midis.size(); ++i) { // 遍历所有
@@ -256,42 +268,48 @@ public class CommandMidiPlayer {
             }
 
             return;
-        } else {
+        } else if (midis.size() > 10 * ( pageNum - 1 ) ) { // 如果超过十个则将开头改为这里是第x页
+            sender.sendMessage("There is page " + pageNum + " :");
+        }else {
             sender.sendMessage("Invalid page.");
             return;
         }
 
-        for (int i = 10*(page-1); i < Math.min(midis.size(), 10*page); ++i) { // 如果没有超过10个则遍历当前页所有文件 如果超过则只遍历当前页
+        for (int i = 10*(pageNum-1); i < Math.min(midis.size(), 10*pageNum); ++i) { // 如果没有超过10个则遍历当前页所有文件 如果超过则只遍历当前页
             sendMidiIndexAndName(sender,i,midis);
         }
 
         if (midis.size() > 10) { // 如果超过十个则在末尾发送翻页命令提示
-            sender.sendMessage("Use /midiplayer list [page] to visit page "+( page+1 )+".");
-            JsonMessage message = new JsonMessage("Previous page");
+            sender.sendMessage("Use /midiplayer list [page] to visit page "+( pageNum+1 )+".");
+            JsonMessage message = new JsonMessage();
 
-            message.addText(" | ");
-            message.addText("Next page");
-
-            if (page>1){
-                message.setColor("Previous page", ColorNames.aqua);
-                message.setHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
-                message.setClickEvent("Previous page", JsonMessage.clickEvent.action.run_command, "/mp list "+ (page-1) );
+            if (pageNum>1){
+                message.addText("Previous page")
+                        .setColor(ColorNames.aqua)
+                        .setHoverEvent(JsonMessage.hoverEvent.action.show_text, "Click to turn page.")
+                        .setClickEvent(JsonMessage.clickEvent.action.run_command, "/mp list "+ (pageNum-1) );
             } else {
-                message.setColor("Previous page", ColorNames.gray);
-                message.setHoverEvent("Previous page", JsonMessage.hoverEvent.action.show_text, "No previous page.");
-                message.setClickEvent("Previous page", JsonMessage.clickEvent.action.change_page, 1 );
+                message.addText("Previous page")
+                        .setColor(ColorNames.gray)
+                        .setHoverEvent(JsonMessage.hoverEvent.action.show_text, "No previous page.")
+                        .setClickEvent(JsonMessage.clickEvent.action.change_page, 1 );
             }
-            message.setColor(" | ",ColorNames.gray);
-            message.setHoverEvent(" | ", JsonMessage.hoverEvent.action.show_text, "Split line.");
-            message.setClickEvent(" | ", JsonMessage.clickEvent.action.run_command, "/mp list " + page );
-            if (midis.size() > 10 * page){
-                message.setColor("Next page", ColorNames.aqua);
-                message.setHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "Click to turn page.");
-                message.setClickEvent("Next page", JsonMessage.clickEvent.action.run_command, "/mp list " + (page+1) );
+
+            message.addText(" | ")
+                    .setColor(ColorNames.gray)
+                    .setHoverEvent(JsonMessage.hoverEvent.action.show_text, "Split line.")
+                    .setClickEvent(JsonMessage.clickEvent.action.run_command, "/mp list " + pageNum );
+
+            if (midis.size() > 10 * pageNum){
+                message.addText("Next page")
+                        .setColor(ColorNames.aqua)
+                        .setHoverEvent(JsonMessage.hoverEvent.action.show_text, "Click to turn page.")
+                        .setClickEvent(JsonMessage.clickEvent.action.run_command, "/mp list " + (pageNum+1) );
             } else {
-                message.setColor("Next page", ColorNames.gray);
-                message.setHoverEvent("Next page", JsonMessage.hoverEvent.action.show_text, "No next page.");
-                message.setClickEvent("Next page", JsonMessage.clickEvent.action.change_page, 1 );
+                message.addText("Next page")
+                        .setColor(ColorNames.gray)
+                        .setHoverEvent(JsonMessage.hoverEvent.action.show_text, "No next page.")
+                        .setClickEvent(JsonMessage.clickEvent.action.change_page, 1 );
             }
 
             message.sendTo(sender);
@@ -307,22 +325,19 @@ public class CommandMidiPlayer {
 
         JsonMessage message = new JsonMessage("Index: " + i + " Name: " + fileName + " [");
 
-        message.addText("Play");
-        message.addText("] [");
-        message.addText("Get");
-        message.addText("]");
+        message.addText("Play")
+                .setColor(ColorNames.aqua)
+                .setHoverEvent(JsonMessage.hoverEvent.action.show_text,"Click to play the midi with resource pack 2.")
+                .setClickEvent(JsonMessage.clickEvent.action.run_command, "/mp play " + i + " 2");
 
-        message.setColor("Play", ColorNames.aqua);
-        message.setHoverEvent("Play", JsonMessage.hoverEvent.action.show_text,"Click to play the midi with resource pack 2.");
-        message.setClickEvent("Play", JsonMessage.clickEvent.action.run_command, "/mp play " + i + " 2");
+        message.addText("] [").setColor(ColorNames.reset);
 
-        message.setColor("] [", ColorNames.reset);
+        message.addText("Get")
+                .setColor(ColorNames.aqua)
+                .setHoverEvent(JsonMessage.hoverEvent.action.show_text,"Click to send command to your chat bar.")
+                .setClickEvent(JsonMessage.clickEvent.action.suggest_command, "/mp play " + i);
 
-        message.setColor("Get", ColorNames.aqua);
-        message.setHoverEvent("Get", JsonMessage.hoverEvent.action.show_text,"Click to send command to your chat bar.");
-        message.setClickEvent("Get", JsonMessage.clickEvent.action.suggest_command, "/mp play " + i);
-
-        message.setColor("]",ColorNames.reset);
+        message.addText("]").setColor(ColorNames.reset);
 
         message.sendTo(sender);
     }
