@@ -27,81 +27,14 @@ public class JsonMessage {
     public JsonMessage(){
     }
 
-    public void addText(String text){
+    public JsonMessageSingle addText(String text){
         message.put(text, new JsonMessageSingle(text));
         texts.add(text);
+        return message.get(text);
     }
 
-    public boolean setColor(String text,String color){
-        try {
-            this.message.get(text).setColor(color);
-            return true;
-        } catch (NullPointerException e){
-            return false;
-        }
-    }
-
-    public boolean setBold(String text,boolean bold){
-        try {
-            this.message.get(text).setBold(bold);
-            return true;
-        } catch (NullPointerException e){
-            return false;
-        }
-    }
-
-    public boolean setItalic(String text,boolean italic){
-        try {
-            this.message.get(text).setItalic(italic);
-            return true;
-        } catch (NullPointerException e){
-            return false;
-        }
-    }
-
-    public boolean setUnderlined(String text,boolean underlined){
-        try {
-            this.message.get(text).setUnderlined(underlined);
-            return true;
-        } catch (NullPointerException e){
-            return false;
-        }
-    }
-
-    public boolean setStrikethrough(String text,boolean strikethrough){
-        try {
-            this.message.get(text).setStrikethrough(strikethrough);
-            return true;
-        } catch (NullPointerException e){
-            return false;
-        }
-    }
-
-    public boolean setObfuscated(String text,boolean obfuscated){
-        try {
-            this.message.get(text).setObfuscated(obfuscated);
-            return true;
-        } catch (NullPointerException e){
-            return false;
-        }
-    }
-
-    public boolean setHoverEvent(String text, String action_type, Object value){
-        try {
-            this.message.get(text).setHoverEvent(action_type, value);
-            return true;
-        } catch (NullPointerException e){
-            return false;
-        }
-    }
-
-    public boolean setClickEvent(String text, String action_type, Object value){
-        try {
-            this.message.get(text).setClickEvent(action_type, value);
-            return true;
-        } catch (NullPointerException e){
-            return false;
-        }
+    public JsonMessageSingle getText(String text){
+        return message.get(text);
     }
 
     public List<JSONObject> getJsonArray(){
@@ -156,42 +89,50 @@ public class JsonMessage {
             return text;
         }
 
-        public void setColor(String color){
+        public JsonMessageSingle setColor(String color){
             this.text.put("color",color);
+            return this;
         }
 
-        public void setBold(boolean bold){
+        public JsonMessageSingle setBold(boolean bold){
             this.text.put("bold",bold);
+            return this;
         }
 
-        public void setItalic(boolean italic){
+        public JsonMessageSingle setItalic(boolean italic){
             this.text.put("italic",italic);
+            return this;
         }
 
-        public void setUnderlined(boolean underlined){
+        public JsonMessageSingle setUnderlined(boolean underlined){
             this.text.put("underlined",underlined);
+            return this;
         }
 
-        public void setStrikethrough(boolean strikethrough){
+        public JsonMessageSingle setStrikethrough(boolean strikethrough){
             this.text.put("strikethrough",strikethrough);
+            return this;
         }
 
-        public void setObfuscated(boolean obfuscated){
+        public JsonMessageSingle setObfuscated(boolean obfuscated){
             this.text.put("obfuscated",obfuscated);
+            return this;
         }
 
-        public void setHoverEvent(String action_type, Object value){
+        public JsonMessageSingle setHoverEvent(String action_type, Object value){
             JsonMessageSingle json = new JsonMessageSingle();
             json.text.put("action",action_type);
             json.text.put("value",value);
             this.text.put("hoverEvent",json.text);
+            return this;
         }
 
-        public void setClickEvent(String action_type, Object value){
+        public JsonMessageSingle setClickEvent(String action_type, Object value){
             JsonMessageSingle json = new JsonMessageSingle();
             json.text.put("action",action_type);
             json.text.put("value",value);
             this.text.put("clickEvent",json.text);
+            return this;
         }
     }
 
