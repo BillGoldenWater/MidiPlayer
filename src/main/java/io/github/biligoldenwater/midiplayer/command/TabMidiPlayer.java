@@ -1,4 +1,4 @@
-package io.github.biligoldenwater.midiplayer.commands;
+package io.github.biligoldenwater.midiplayer.command;
 
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
 import io.github.biligoldenwater.midiplayer.modules.CheckPermissions;

@@ -2,8 +2,8 @@ package io.github.biligoldenwater.midiplayer;
 
 import io.github.biligoldenwater.midiplayer.api.PlayingMidis;
 import io.github.biligoldenwater.midiplayer.api.PlayingNoteParticles;
-import io.github.biligoldenwater.midiplayer.commands.CommandMidiPlayer;
-import io.github.biligoldenwater.midiplayer.commands.TabMidiPlayer;
+import io.github.biligoldenwater.midiplayer.command.CommandMidiPlayer;
+import io.github.biligoldenwater.midiplayer.command.TabMidiPlayer;
 import io.github.biligoldenwater.midiplayer.listener.OnPlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
