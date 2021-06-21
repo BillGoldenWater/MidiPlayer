@@ -6,132 +6,126 @@
 package io.github.biligoldenwater.midiplayer.modules;
 
 import com.alibaba.fastjson.JSONObject;
-import net.minecraft.server.v1_12_R1.IChatBaseComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class JsonMessage {
-    private final HashMap<String,JsonMessageSingle> message = new HashMap<>();
+    private final HashMap<String, JsonMessageSingle> message = new HashMap<>();
     private final List<String> texts = new ArrayList<>();
 
-    public JsonMessage(String text){
+    public JsonMessage(String text) {
         message.put(text, new JsonMessageSingle(text));
         texts.add(text);
     }
 
-    public JsonMessage(){
+    public JsonMessage() {
     }
 
-    public JsonMessageSingle addText(String text){
+    public JsonMessageSingle addText(String text) {
         message.put(text, new JsonMessageSingle(text));
         texts.add(text);
         return message.get(text);
     }
 
-    public JsonMessageSingle getText(String text){
+    public JsonMessageSingle getText(String text) {
         return message.get(text);
     }
 
-    public List<JSONObject> getJsonArray(){
+    public List<JSONObject> getJsonArray() {
         List<JSONObject> output = new ArrayList<>();
 
-        for (String textName : texts){
+        for (String textName : texts) {
             output.add(message.get(textName).getJSONObject());
         }
 
         return output;
     }
 
-    public String getJsonText(){
+    public String getJsonText() {
         List<String> output = new ArrayList<>();
 
-        for (String textName : texts){
+        for (String textName : texts) {
             output.add(message.get(textName).getStringOutput());
         }
 
         return output.toString();
     }
 
-    public String getCommand(CommandSender sender){
-        return "tellraw "+sender.getName()+" "+this.getJsonText();
+    public String getCommand(CommandSender sender) {
+        return "tellraw " + sender.getName() + " " + this.getJsonText();
     }
 
-    public void sendTo(CommandSender sender){
-        if(sender instanceof Player){
-            ((CraftPlayer) sender).getHandle().sendMessage(IChatBaseComponent.ChatSerializer.a(this.getJsonText()));
-        } else {
-            sender.getServer().dispatchCommand(sender.getServer().getConsoleSender(),this.getCommand(sender));
-        }
+    public void sendTo(CommandSender sender) {
+        sender.spigot().sendMessage(ComponentSerializer.parse(this.getJsonText()));
     }
 
     public static class JsonMessageSingle {
         private final JSONObject text = new JSONObject();
 
-        public JsonMessageSingle(String text){
-            if(text == null)text = "";
-            this.text.put("text",text);
+        public JsonMessageSingle(String text) {
+            if (text == null) text = "";
+            this.text.put("text", text);
         }
 
-        public JsonMessageSingle(){
+        public JsonMessageSingle() {
 
         }
 
-        public String getStringOutput(){
+        public String getStringOutput() {
             return text.toJSONString();
         }
 
-        public JSONObject getJSONObject(){
+        public JSONObject getJSONObject() {
             return text;
         }
 
-        public JsonMessageSingle setColor(String color){
-            this.text.put("color",color);
+        public JsonMessageSingle setColor(String color) {
+            this.text.put("color", color);
             return this;
         }
 
-        public JsonMessageSingle setBold(boolean bold){
-            this.text.put("bold",bold);
+        public JsonMessageSingle setBold(boolean bold) {
+            this.text.put("bold", bold);
             return this;
         }
 
-        public JsonMessageSingle setItalic(boolean italic){
-            this.text.put("italic",italic);
+        public JsonMessageSingle setItalic(boolean italic) {
+            this.text.put("italic", italic);
             return this;
         }
 
-        public JsonMessageSingle setUnderlined(boolean underlined){
-            this.text.put("underlined",underlined);
+        public JsonMessageSingle setUnderlined(boolean underlined) {
+            this.text.put("underlined", underlined);
             return this;
         }
 
-        public JsonMessageSingle setStrikethrough(boolean strikethrough){
-            this.text.put("strikethrough",strikethrough);
+        public JsonMessageSingle setStrikethrough(boolean strikethrough) {
+            this.text.put("strikethrough", strikethrough);
             return this;
         }
 
-        public JsonMessageSingle setObfuscated(boolean obfuscated){
-            this.text.put("obfuscated",obfuscated);
+        public JsonMessageSingle setObfuscated(boolean obfuscated) {
+            this.text.put("obfuscated", obfuscated);
             return this;
         }
 
-        public JsonMessageSingle setHoverEvent(String action_type, Object value){
+        public JsonMessageSingle setHoverEvent(String action_type, Object value) {
             JsonMessageSingle json = new JsonMessageSingle();
-            json.text.put("action",action_type);
-            json.text.put("value",value);
-            this.text.put("hoverEvent",json.text);
+            json.text.put("action", action_type);
+            json.text.put("value", value);
+            this.text.put("hoverEvent", json.text);
             return this;
         }
 
-        public JsonMessageSingle setClickEvent(String action_type, Object value){
+        public JsonMessageSingle setClickEvent(String action_type, Object value) {
             JsonMessageSingle json = new JsonMessageSingle();
-            json.text.put("action",action_type);
-            json.text.put("value",value);
-            this.text.put("clickEvent",json.text);
+            json.text.put("action", action_type);
+            json.text.put("value", value);
+            this.text.put("clickEvent", json.text);
             return this;
         }
     }

@@ -3,7 +3,8 @@ package io.github.biligoldenwater.midiplayer;
 import io.github.biligoldenwater.midiplayer.api.PlayingNoteParticles;
 import io.github.biligoldenwater.midiplayer.modules.NoteParticle;
 import io.github.biligoldenwater.midiplayer.modules.PlayNote;
-import io.github.biligoldenwater.midiplayer.modules.SendActionBar;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ import static io.github.biligoldenwater.midiplayer.modules.int2hexStrOrHexStr2in
 
 public class PlayMidi {
     private double msPerTick;
-    private final Map<String,List<List<Long>>> midiData = new HashMap<>();
+    private final Map<String, List<List<Long>>> midiData = new HashMap<>();
     private long tick = 0;
     private int delayMultiple = 1;
     private long midiLength;
@@ -39,13 +40,13 @@ public class PlayMidi {
     private byte yaw = 0;
     private List<Location> particles = new ArrayList<>();
 
-    public void initMidi(JavaPlugin plugin, Player player, File midiFile, boolean useDisplayFunction){
-        plugin.getLogger().info("Initialize Midi for player:"+player.getName());
+    public void initMidi(JavaPlugin plugin, Player player, File midiFile, boolean useDisplayFunction) {
+        plugin.getLogger().info("Initialize Midi for player:" + player.getName());
         try {
             Sequence s1 = MidiSystem.getSequence(midiFile);
             //plugin.getLogger().info("tickLength:"+ s1.getTickLength());
             //plugin.getLogger().info(Arrays.toString(s1.getTracks()[0].get(0).getMessage().getMessage()));
-            midiLength = s1.getTickLength()+100;
+            midiLength = s1.getTickLength() + 100;
             Track[] tracks = s1.getTracks();
             int ticksPerBeat = s1.getResolution();
             //plugin.getLogger().info("ticksPerBeat:"+ticksPerBeat);
@@ -53,14 +54,14 @@ public class PlayMidi {
             int trackID = 0;
             int trackCount = 0;
 
-            for (int i = 0;i<tracks.length;++i) {
-                Track track  = tracks[i];
+            for (int i = 0; i < tracks.length; ++i) {
+                Track track = tracks[i];
                 //plugin.getLogger().info("ticks:" + track.ticks());
 
                 long lastTick = 0;
                 List<List<Long>> trackData = new ArrayList<>();
 
-                for(int x = 0;x<track.size();++x) {
+                for (int x = 0; x < track.size(); ++x) {
                     byte[] chars = track.get(x).getMessage().getMessage();
 //                    if(Byte.toUnsignedInt(chars[1])==0x2F){
 //                        if (!trackData.isEmpty()) {
@@ -108,12 +109,12 @@ public class PlayMidi {
                                     }
                                     microSecondPerBeat = hexStr2int(speedHex.toString());
                                     event.add((long) 0x51);
-                                    if(msPerTick<getMsPerTick(microSecondPerBeat, ticksPerBeat)){
+                                    if (msPerTick < getMsPerTick(microSecondPerBeat, ticksPerBeat)) {
                                         msPerTick = getMsPerTick(microSecondPerBeat, ticksPerBeat);
-                                        plugin.getLogger().info("("+microSecondPerBeat+"/"+ticksPerBeat+")Set speed to:" + getMsPerTick(microSecondPerBeat,ticksPerBeat));
+                                        plugin.getLogger().info("(" + microSecondPerBeat + "/" + ticksPerBeat + ")Set speed to:" + getMsPerTick(microSecondPerBeat, ticksPerBeat));
                                     }
                                     event.add((long) getMsPerTick(microSecondPerBeat, ticksPerBeat));
-                                    plugin.getLogger().info("("+microSecondPerBeat+"/"+ticksPerBeat+")Track: "+i+" Change speed to:" + getMsPerTick(microSecondPerBeat,ticksPerBeat));
+                                    plugin.getLogger().info("(" + microSecondPerBeat + "/" + ticksPerBeat + ")Track: " + i + " Change speed to:" + getMsPerTick(microSecondPerBeat, ticksPerBeat));
                                     //plugin.getLogger().info(Arrays.toString(chars));
 
                                     break;
@@ -157,7 +158,7 @@ public class PlayMidi {
                         case 0x90://note on
                             event.add((long) 0x90);
                             event.add((long) Byte.toUnsignedInt(chars[1]));
-                            if (chars.length==3){
+                            if (chars.length == 3) {
                                 event.add((long) Byte.toUnsignedInt(chars[2]));
                             }
                             //plugin.getLogger().info("Note " + chars[1] + "on.");
@@ -180,7 +181,7 @@ public class PlayMidi {
                         case 0x80://note off
                             event.add((long) 0x80);
                             event.add((long) Byte.toUnsignedInt(chars[1]));
-                            if (chars.length==3){
+                            if (chars.length == 3) {
                                 event.add((long) Byte.toUnsignedInt(chars[2]));
                             }
                             //plugin.getLogger().info("Note " + chars[1] + "off.");
@@ -201,7 +202,7 @@ public class PlayMidi {
 
                 }
                 if (!trackData.isEmpty()) {
-                    if(i!=0){
+                    if (i != 0) {
                         trackCount++;
                     }
                     midiData.put(String.valueOf(trackID), trackData);
@@ -209,7 +210,7 @@ public class PlayMidi {
                     List<Long> b = new ArrayList<>();
                     b.add((long) trackCount);
                     a.add(b);
-                    midiData.put("trackCount",a);
+                    midiData.put("trackCount", a);
                     trackID++;
                 }
             }
@@ -268,13 +269,13 @@ public class PlayMidi {
                         noteLocation.setZ(z + i);
                         break;
                 }
-                player.sendBlockChange(noteLocation, Material.WOOL, (byte) (i % 2 == 0 ? 15 : 0));
+                player.sendBlockChange(noteLocation, Material.WHITE_WOOL, (byte) (i % 2 == 0 ? 15 : 0));
             }
         }
     }
 
-    public void playMidi(Player targetPlayer, boolean useSoundStop, byte resourcePack, boolean useProgressBar, boolean useDisplayFunction){
-        MidiPlayer.getInstance().getLogger().info("Play Midi for player:"+targetPlayer.getName());
+    public void playMidi(Player targetPlayer, boolean useSoundStop, byte resourcePack, boolean useProgressBar, boolean useDisplayFunction) {
+        MidiPlayer.getInstance().getLogger().info("Play Midi for player:" + targetPlayer.getName());
         isRunning = true;
         BukkitRunnable midiPlayer = new BukkitRunnable() {
             @Override
@@ -293,8 +294,8 @@ public class PlayMidi {
                     @Override
                     public void run() {
                         final long startTime = System.currentTimeMillis();
-                        while (tick <= midiLength && isRunning){
-                            if( (System.currentTimeMillis()-startTime) < (tick * msPerTick / 1000) ){
+                        while (tick <= midiLength && isRunning) {
+                            if ((System.currentTimeMillis() - startTime) < (tick * msPerTick / 1000)) {
                                 tick--;
                                 try {
                                     Thread.sleep(2);
@@ -307,7 +308,7 @@ public class PlayMidi {
                         }
                         targetPlayer.sendMessage("End of a song");
                         isRunning = false;
-                        if(useDisplayFunction) {
+                        if (useDisplayFunction) {
                             Location noteLocation = new Location(targetPlayer.getWorld(), x, y + 11, z);
 
                             for (int i = 21; i <= 108; ++i) {
@@ -363,7 +364,7 @@ public class PlayMidi {
 //
 //                tracks.add(updateParticles);
 
-                for(int i = 0;i<=trackCount;++i){
+                for (int i = 0; i <= trackCount; ++i) {
                     int finalI = i;
                     BukkitRunnable runnable = new BukkitRunnable() {
                         final int trackId = finalI;
@@ -371,15 +372,16 @@ public class PlayMidi {
                         double nowTick = 0;
                         long musicalInstrument = 0;
                         int tickMultiple = 1;
+
                         //final long startTime = System.currentTimeMillis();
                         @Override
                         public void run() {
                             int i = 0;
-                            if(data == null)return;
-                            while (i<data.size() && isRunning){
-                                if(nowTick>tick){
+                            if (data == null) return;
+                            while (i < data.size() && isRunning) {
+                                if (nowTick > tick) {
                                     try {
-                                        Thread.sleep( (long) ( ( (msPerTick / 1000) * delayMultiple ) ) );
+                                        Thread.sleep((long) (((msPerTick / 1000) * delayMultiple)));
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
@@ -394,7 +396,7 @@ public class PlayMidi {
                                         if (event.size() == 3) {
                                             PlayNote.playNote(targetPlayer, event.get(1), event.get(2), resourcePack);
                                             //targetPlayer.sendMessage("[Debug] Note: " + event.get(1) + " Strength: " + PlayNote.getStrength(event.get(2)) + " " + event.get(2));
-                                            if(useDisplayFunction) {
+                                            if (useDisplayFunction) {
 
                                                 noteLocation.setY(y + 10);
                                                 switch (yaw) {
@@ -444,7 +446,7 @@ public class PlayMidi {
                                             }
                                         }
 
-                                        if(useDisplayFunction) {
+                                        if (useDisplayFunction) {
                                             NoteParticle noteParticle = new NoteParticle(noteLocation);
                                             noteParticle.start(MidiPlayer.getInstance(), 50, 1);
                                             PlayingNoteParticles.playingNoteParticles.add(noteParticle);
@@ -476,29 +478,31 @@ public class PlayMidi {
                                         output.append(String.valueOf(getChars(new byte[]{event.get(k).byteValue()})));
                                     }
                                     targetPlayer.sendMessage(output.toString());
-                                } else if (event.get(0) == 0x51){ // 更改速度
+                                } else if (event.get(0) == 0x51) { // 更改速度
                                     //msPerTick = event.get(1);
-                                    tickMultiple = (int) (msPerTick/event.get(1));
-                                    MidiPlayer.getInstance().getLogger().info("Change Track: "+trackId+" msPerTick to:"+msPerTick);
+                                    tickMultiple = (int) (msPerTick / event.get(1));
+                                    MidiPlayer.getInstance().getLogger().info("Change Track: " + trackId + " msPerTick to:" + msPerTick);
                                 }
 
-                                float percent = ((float) tick / (float) midiLength)*100; // 计算播放到的百分比
+                                float percent = ((float) tick / (float) midiLength) * 100; // 计算播放到的百分比
                                 StringBuilder progressBar = new StringBuilder();
-                                for (int j = 0;j<(int)((percent / 100) *50);++j){
+                                for (int j = 0; j < (int) ((percent / 100) * 50); ++j) {
                                     progressBar.append("="); // 已播放部分
                                 }
-                                for (int j = 0;j<50-(int)((percent / 100) *50);++j){
+                                for (int j = 0; j < 50 - (int) ((percent / 100) * 50); ++j) {
                                     progressBar.append("-"); // 未播放部分
                                 }
                                 //targetPlayer.sendMessage(String.valueOf(event.get(0))+event.get(1));
-                                if(useProgressBar){
-                                    SendActionBar.sendActionBar(targetPlayer,"["+progressBar+"] "+((int) (percent*100) * 1.0 /100) + "%");
+                                if (useProgressBar) {
+                                    targetPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                                            new TextComponent("[" + progressBar + "] " + ((int) (percent * 100) * 1.0 / 100) + "%"));
                                     //targetPlayer.sendTitle( "§r", "["+progressBar+"] "+((int) (percent*100) * 1.0 /100) + "%", 0, 100, 0);
                                 }
                                 i++;
                             }
-                            if(useProgressBar){
-                                SendActionBar.sendActionBar(targetPlayer,"§r");
+                            if (useProgressBar) {
+                                targetPlayer.spigot().sendMessage(ChatMessageType.SYSTEM,
+                                        new TextComponent("§r"));
                                 //targetPlayer.sendTitle( "§r", "§r",0,0,0);
                             }
                             cancel();
@@ -506,7 +510,7 @@ public class PlayMidi {
                     };
                     tracks.add(runnable);
                 }
-                for(BukkitRunnable runnable:tracks){
+                for (BukkitRunnable runnable : tracks) {
                     runnable.runTaskAsynchronously(MidiPlayer.getInstance());
                 }
             }
@@ -514,38 +518,38 @@ public class PlayMidi {
         midiPlayer.runTaskAsynchronously(MidiPlayer.getInstance());
     }
 
-    public void stopSound(){
+    public void stopSound() {
         isRunning = false;
     }
 
-    public boolean isRunning(){
+    public boolean isRunning() {
         return isRunning;
     }
 
-    private void calcDelayMultiple(){
-        for(int i = 1;i<=100;++i){
-            if ((msPerTick/1000)*delayMultiple<1.0){
+    private void calcDelayMultiple() {
+        for (int i = 1; i <= 100; ++i) {
+            if ((msPerTick / 1000) * delayMultiple < 1.0) {
                 //MidiPlayer.getInstance().getLogger().info(String.valueOf(msPerTick/1000));
-                delayMultiple+=1;
+                delayMultiple += 1;
             } else {
                 break;
             }
         }
-        if(delayMultiple>=100){
+        if (delayMultiple >= 100) {
             MidiPlayer.getInstance().getLogger().warning("The midi has a wrong delay.");
         }
     }
 
-    private double getMsPerTick(int msPerBeat,int ticksPerBeat){
+    private double getMsPerTick(int msPerBeat, int ticksPerBeat) {
         return (double) msPerBeat / (double) ticksPerBeat;
     }
 
-    private char[] getChars (byte[] bytes) {
+    private char[] getChars(byte[] bytes) {
         Charset cs = StandardCharsets.US_ASCII;
-        ByteBuffer bb = ByteBuffer.allocate (bytes.length);
-        bb.put (bytes);
-        bb.flip ();
-        CharBuffer cb = cs.decode (bb);
+        ByteBuffer bb = ByteBuffer.allocate(bytes.length);
+        bb.put(bytes);
+        bb.flip();
+        CharBuffer cb = cs.decode(bb);
 
         return cb.array();
     }
