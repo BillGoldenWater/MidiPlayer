@@ -3,6 +3,7 @@ version: ${project.version}
 main: io.github.biligoldenwater.midiplayer.MidiPlayer
 authors: [Golden_Water]
 description: A plugin let you can play midi music.
+api-version: 1.16
 commands:
   midiplayer:
     aliases: [mp]
