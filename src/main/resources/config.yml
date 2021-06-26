@@ -1,6 +1,0 @@
-# Configuration
-# Allow or disallow players to use display function
-allowPlayersUseDisplayFunction: false
-# Data storage
-progressbar: {}
-displayFunction: {}

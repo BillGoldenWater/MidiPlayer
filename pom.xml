@@ -6,7 +6,7 @@
 
     <groupId>io.github.biligoldenwater</groupId>
     <artifactId>MidiPlayer</artifactId>
-    <version>v1.2.1</version>
+    <version>v1.3.0</version>
     <packaging>jar</packaging>
 
     <name>MidiPlayer</name>
@@ -66,11 +66,6 @@
             <artifactId>spigot</artifactId>
             <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>1.2.47</version>
         </dependency>
     </dependencies>
 </project>
