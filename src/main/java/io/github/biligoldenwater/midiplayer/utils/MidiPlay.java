@@ -30,6 +30,7 @@ public class MidiPlay extends BukkitRunnable {
         this.midiFile = midiFile;
     }
 
+    @SuppressWarnings("BusyWait")
     @Override
     public void run() {
         running = true;
