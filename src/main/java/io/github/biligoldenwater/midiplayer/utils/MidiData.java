@@ -33,7 +33,7 @@ public class MidiData {
 
     public double getMicrosecondPerTick(int microsecondPerBeat) throws UnsupportedMidiFileType {
         if (sequence.getDivisionType() == Sequence.PPQ) {
-            return ((double) sequence.getResolution()) * microsecondPerBeat;
+            return microsecondPerBeat / ((double) sequence.getResolution());
         } else {
             throw new UnsupportedMidiFileType();
         }
