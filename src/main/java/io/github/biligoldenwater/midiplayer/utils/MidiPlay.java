@@ -1,5 +1,6 @@
 package io.github.biligoldenwater.midiplayer.utils;
 
+import io.github.biligoldenwater.midiplayer.MidiPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.sound.midi.MetaMessage;
@@ -11,22 +12,39 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MidiPlay extends BukkitRunnable {
-    private boolean running = false;
-    private long tick = 0;
+    private final File midiFile;
     private MidiData midiData;
+
+    private long tickLength;
+    private long tick = 0;
+
+    private double microsecondPerTick = 1000.0;
+    private double microsecondPerOnce = 1000.0;
+
+    private boolean running = false;
+
+    private int ticksInOnce = 1;
+
+    public MidiPlay(File midiFile) {
+        this.midiFile = midiFile;
+    }
 
     @Override
     public void run() {
         running = true;
-//        File file = new File("D:\\Music\\Midis\\U.N.オーエンは彼女なのか？.mid");
-        File file = new File("D:\\Music\\Midis\\When Christmas comes to town.mid");
-//        File file = new File("D:\\Music\\Midis\\千本樱.mid");
-
         try {
-            midiData = new MidiData(file);
+            midiData = new MidiData(midiFile);
+            if (midiData.getFileType() == 2) {
+                MidiPlayer.getInstance().getLogger().warning("Unsupported MIDI file type; Name:" + midiFile.getName());
+                return;
+            }
+            tickLength = midiData.getTickLength();
 
-            while (running){
-
+            while (running) {
+                for (int i = 0; i < ticksInOnce; i++) {
+                    tick();
+                }
+                Thread.sleep((long) (microsecondPerOnce / 1000), (int) (microsecondPerOnce % 1000));
             }
 
         } catch (Exception e) {
@@ -38,11 +56,14 @@ public class MidiPlay extends BukkitRunnable {
         if (midiData == null) {
             this.stop();
             return;
+        } else if (tick >= tickLength) {
+            this.stop();
+            return;
         }
 
-        List<MidiData.TrackData> tracks = midiData.getTracks();
+        List<TrackData> tracks = midiData.getTracks();
         for (int i = 0; i < tracks.size(); i++) {
-            MidiData.TrackData track = tracks.get(i);
+            TrackData track = tracks.get(i);
 
             List<MidiMessage> messages = track.getMessages(tick);
             if (messages == null) continue;
@@ -51,7 +72,14 @@ public class MidiPlay extends BukkitRunnable {
                     ShortMessage shortMessage = (ShortMessage) message;
                 } else if (message instanceof MetaMessage) {
                     MetaMessage metaMessage = (MetaMessage) message;
-                    System.out.printf("Track: %d, Meta message: Type: %s, %s\n", i, Integer.toHexString(metaMessage.getType()), Arrays.toString(metaMessage.getData()));
+                    switch (metaMessage.getType()) {
+                        case 0x51: {// 更改速度,微秒 每拍
+
+                        }
+                        default: {
+                            System.out.printf("@%d Track: %d, Meta message: Type: %s, %s\n", tick, i, Integer.toHexString(metaMessage.getType()), Arrays.toString(metaMessage.getData()));
+                        }
+                    }
                 } else if (message instanceof SysexMessage) {
                     SysexMessage sysexMessage = (SysexMessage) message;
                 } else {
