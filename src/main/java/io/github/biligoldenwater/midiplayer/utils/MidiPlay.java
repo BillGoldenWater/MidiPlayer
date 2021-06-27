@@ -1,6 +1,7 @@
 package io.github.biligoldenwater.midiplayer.utils;
 
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
+import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Hex;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.sound.midi.MetaMessage;
@@ -41,10 +42,21 @@ public class MidiPlay extends BukkitRunnable {
             tickLength = midiData.getTickLength();
 
             while (running) {
+                long timeStart = System.currentTimeMillis();
                 for (int i = 0; i < ticksInOnce; i++) {
                     tick();
                 }
-                Thread.sleep((long) (microsecondPerOnce / 1000), (int) (microsecondPerOnce % 1000));
+                long timeEnd = System.currentTimeMillis();
+                long timeCost = timeEnd - timeStart;
+
+                long millis = (long) (microsecondPerOnce / 1000);
+                int nanos = (int) (microsecondPerOnce % 1000);
+
+                long finalMillisDelay = millis - timeCost;
+                if (finalMillisDelay < 0) finalMillisDelay = 0;
+
+                Thread.sleep(finalMillisDelay, nanos);
+
             }
 
         } catch (Exception e) {
@@ -52,43 +64,65 @@ public class MidiPlay extends BukkitRunnable {
         }
     }
 
-    public void tick() {
-        if (midiData == null) {
-            this.stop();
-            return;
-        } else if (tick >= tickLength) {
+    public void tick() throws Exception {
+        if (midiData == null || tick >= tickLength) { // 如果数据为空 或 已经播放完毕
             this.stop();
             return;
         }
 
-        List<TrackData> tracks = midiData.getTracks();
-        for (int i = 0; i < tracks.size(); i++) {
-            TrackData track = tracks.get(i);
+        List<TrackData> tracks = midiData.getTracks(); // 获取所有轨道
+        for (int i = 0, len = tracks.size(); i < len; i++) {
+            TrackData track = tracks.get(i); // 获取当前轨道
 
-            List<MidiMessage> messages = track.getMessages(tick);
-            if (messages == null) continue;
+            List<MidiMessage> messages = track.getMessages(tick); // 获取指定 tick 的 MidiMessage 列表
+            if (messages == null) continue; // 如果无消息
             for (MidiMessage message : messages) {
+                System.out.printf("@%d Track: %d, ", tick, i);
+
                 if (message instanceof ShortMessage) {
                     ShortMessage shortMessage = (ShortMessage) message;
+
                 } else if (message instanceof MetaMessage) {
                     MetaMessage metaMessage = (MetaMessage) message;
+                    System.out.printf("Meta message: Type: %s, ", Integer.toHexString(metaMessage.getType()));
+
                     switch (metaMessage.getType()) {
                         case 0x51: {// 更改速度,微秒 每拍
-
+                            String dataHex = Hex.encodeHexString(metaMessage.getData());
+                            changeSpeed(Integer.parseInt(dataHex, 16));
+                            System.out.print("Change speed to:" + dataHex);
+                            break;
                         }
                         default: {
-                            System.out.printf("@%d Track: %d, Meta message: Type: %s, %s\n", tick, i, Integer.toHexString(metaMessage.getType()), Arrays.toString(metaMessage.getData()));
+                            System.out.printf("Data: %s; RawMessage:%s", Arrays.toString(metaMessage.getData()), Arrays.toString(metaMessage.getMessage()));
                         }
                     }
                 } else if (message instanceof SysexMessage) {
                     SysexMessage sysexMessage = (SysexMessage) message;
+
                 } else {
                     System.out.println("Other Message.");
                 }
+
+                System.out.println();
             }
         }
 
         this.tick++;
+    }
+
+    public void calcTicksInOnce() {
+        int min = 1000;
+        double percent = microsecondPerTick / min;
+        int times = (int) Math.ceil(1 / percent);
+        if (times < 1) times = 1;
+        ticksInOnce = times;
+    }
+
+    public void changeSpeed(int microsecondPerBeat) throws MidiData.UnsupportedMidiFileType {
+        microsecondPerTick = midiData.getMicrosecondPerTick(microsecondPerBeat);
+        calcTicksInOnce();
+        microsecondPerOnce = microsecondPerTick * ticksInOnce;
     }
 
     public void stop() {
