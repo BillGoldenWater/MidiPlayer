@@ -1,4 +1,5 @@
 # MidiPlayer
+
 - [简体中文](#简体中文)
     - [简介](#简介)
     - [服务器要求](#服务器要求)
@@ -18,7 +19,7 @@
 
 能加载使用 Bukkit API 的插件(例:CraftBukkit Spigot etc.).
 
-Minecraft版本目前仅支持1.12.2.
+Minecraft版本目前支持1.12~1.16.
 
 ### 使用方法
 
@@ -36,11 +37,12 @@ A Minecraft plugin for play midi.
 
 Can load plugin of use Bukkit API(Example: CraftBukkit Spigot etc.).
 
-Only support Minecraft version 1.12.2 now.
+Support Minecraft version 1.12~1.16 now.
 
 ### Usage
 
-After [downloading](https://github.com/BiliGoldenWater/MidiPlayer/releases), put it into the server plugins folder and restart/start the server.
+After [downloading](https://github.com/BiliGoldenWater/MidiPlayer/releases), put it into the server plugins folder and
+restart/start the server.
 
 For more details, please go to the wiki page(only chinese)(unfinished).
 
