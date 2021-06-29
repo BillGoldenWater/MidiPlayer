@@ -6,8 +6,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class PlayNote {
-    private Player player;
-    private boolean isBroadcast;
+    private final Player player;
+    private final boolean isBroadcast;
 
     public PlayNote(Player targetPlayer, boolean isBroadcast) {
         this.player = targetPlayer;
