@@ -2,6 +2,7 @@ package io.github.biligoldenwater.midiplayer.utils;
 
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
 import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Hex;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.sound.midi.MetaMessage;
@@ -13,9 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MidiPlay extends BukkitRunnable {
-    private final PlayNote note = new PlayNote();
+    private final PlayNote playNote;
     private final File midiFile;
     private final int minimumDelayInMicrosecond = 5000;
+    private final boolean useStop;
 
     private MidiData midiData;
 
@@ -29,8 +31,10 @@ public class MidiPlay extends BukkitRunnable {
 
     private int ticksInOnce = 1;
 
-    public MidiPlay(File midiFile) {
+    public MidiPlay(File midiFile, Player targetPlayer, boolean isBroadcast, boolean useStop) {
+        this.playNote = new PlayNote(targetPlayer, isBroadcast);
         this.midiFile = midiFile;
+        this.useStop = useStop;
     }
 
     @SuppressWarnings("BusyWait")
@@ -89,22 +93,34 @@ public class MidiPlay extends BukkitRunnable {
                     ShortMessage shortMessage = (ShortMessage) message;
                     Debug.print(String.format("Short message: Command: %s, ", Integer.toHexString(shortMessage.getCommand())));
                     switch (shortMessage.getCommand()) {
-                        case ShortMessage.NOTE_ON: { // wait to finish
-                            note.noteOn(shortMessage.getChannel(), track.getChannelInstrument(shortMessage.getChannel()), shortMessage.getData1(), shortMessage.getData2());
+                        case ShortMessage.NOTE_ON: {
+                            int channelId = shortMessage.getChannel();
+                            int instrumentId = track.getChannelInstrument(channelId);
+                            int note = shortMessage.getData1();
+                            int velocity = shortMessage.getData2();
+
+                            playNote.noteOn(instrumentId, note, velocity);
                             Debug.print(String.format("Channel: %d, Instrument: %d, NoteOn: %d, Velocity: %d",
-                                    shortMessage.getChannel(),
-                                    track.getChannelInstrument(shortMessage.getChannel()),
-                                    shortMessage.getData1(),
-                                    shortMessage.getData2()));
+                                    channelId,
+                                    instrumentId,
+                                    note,
+                                    velocity));
                             break;
                         }
-                        case ShortMessage.NOTE_OFF: { // wait to finish
-                            note.noteOff(shortMessage.getChannel(), track.getChannelInstrument(shortMessage.getChannel()), shortMessage.getData1(), shortMessage.getData2());
+                        case ShortMessage.NOTE_OFF: {
+                            int channelId = shortMessage.getChannel();
+                            int instrumentId = track.getChannelInstrument(channelId);
+                            int note = shortMessage.getData1();
+                            int velocity = shortMessage.getData2();
+
+                            if (useStop) {
+                                playNote.noteOff(instrumentId, note);
+                            }
                             Debug.print(String.format("Channel: %d, Instrument: %d, NoteOff: %d, Velocity: %d",
-                                    shortMessage.getChannel(),
-                                    track.getChannelInstrument(shortMessage.getChannel()),
-                                    shortMessage.getData1(),
-                                    shortMessage.getData2()));
+                                    channelId,
+                                    instrumentId,
+                                    note,
+                                    velocity));
                             break;
                         }
                         case ShortMessage.PROGRAM_CHANGE: {

@@ -1,12 +1,16 @@
 package io.github.biligoldenwater.midiplayer;
 
+import io.github.biligoldenwater.midiplayer.listener.OnBlockBreakEvent;
 import io.github.biligoldenwater.midiplayer.utils.MidiPlay;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class MidiPlayer extends JavaPlugin {
     private static MidiPlayer instance;
+    private final Map<String, MidiPlay> playList = new HashMap<>();
 
     private boolean debug = false;
 
@@ -18,15 +22,10 @@ public final class MidiPlayer extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        getLogger().info("Enabled.");//输出已启用消息到日志
-    }
 
-    public static void main(String[] args) {
-//        File file = new File("D:\\Music\\Midis\\U.N.オーエンは彼女なのか？.mid");
-//        File file = new File("D:\\Music\\Midis\\When Christmas comes to town.mid");
-//        File file = new File("D:\\Music\\Midis\\千本樱.mid");
-        File file = new File("D:\\Music\\Midis\\HedwigsTheme.mid");
-        new MidiPlay(file).run();
+        Bukkit.getPluginManager().registerEvents(new OnBlockBreakEvent(), this);
+
+        getLogger().info("Enabled.");//输出已启用消息到日志
     }
 
     @Override
@@ -41,6 +40,10 @@ public final class MidiPlayer extends JavaPlugin {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public Map<String, MidiPlay> getPlayList() {
+        return playList;
     }
 
     public static MidiPlayer getInstance() {

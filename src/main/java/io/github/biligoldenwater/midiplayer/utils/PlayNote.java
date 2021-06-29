@@ -1,38 +1,55 @@
 package io.github.biligoldenwater.midiplayer.utils;
 
-import javax.sound.midi.*;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 public class PlayNote {
-    Synthesizer midiSynth;
-    Instrument[] instr;
-    MidiChannel[] mChannels;
+    private Player player;
+    private boolean isBroadcast;
 
-    public PlayNote() {
-        try {
-            /* Create a new Sythesizer and open it. Most of
-             * the methods you will want to use to expand on this
-             * example can be found in the Java documentation here:
-             * https://docs.oracle.com/javase/7/docs/api/javax/sound/midi/Synthesizer.html
-             */
-            midiSynth = MidiSystem.getSynthesizer();
-            midiSynth.open();
+    public PlayNote(Player targetPlayer, boolean isBroadcast) {
+        this.player = targetPlayer;
+        this.isBroadcast = isBroadcast;
+    }
 
-            //get and load default instrument and channel lists
-            midiSynth.loadAllInstruments(midiSynth.getDefaultSoundbank());
+    public float calcNotePitch(int note) {
+//        return (float) Math.pow(2, (note - 66) / 12.0);
+        return (float) Math.pow(2, (note - 66) / 12.0);
+    }
 
-            mChannels = midiSynth.getChannels();
-        } catch (MidiUnavailableException e) {
-            e.printStackTrace();
+    public void noteOn(int instrumentId, int note, int velocity) {
+        Location loc = player.getLocation();
+        World world = loc.getWorld();
+        if (isBroadcast && world != null) {
+//            world.playSound(loc, Sound.BLOCK_NOTE_BLOCK_HARP, velocity * 2, calcNotePitch(note));
+            world.playSound(loc, "minecraft:lkrb.piano.p"+note+ getVelocity(velocity), velocity * 2, 1);
+        } else {
+            player.playSound(loc, Sound.BLOCK_NOTE_BLOCK_HARP, velocity * 2, calcNotePitch(note));
         }
     }
 
-    public void noteOn(int channel, int instrument, int note, int velocity) {
-        mChannels[channel].programChange(instrument);
-        mChannels[channel].noteOn(note, velocity);//On channel 0, play note number 60 with velocity 100
+    public void noteOff(int instrumentId, int note) {
+
     }
 
-    public void noteOff(int channel, int instrument, int note, int velocity) {
-        mChannels[channel].programChange(instrument);
-        mChannels[channel].noteOff(note, velocity);//turn of the note
+    public String getVelocity(long velocity) {
+        if (velocity <= 20+10) {
+            return "ppp";
+        } else if (velocity <= 40+5) {
+            return "pp";
+        } else if (velocity <= 50+7) {
+            return "p";
+        } else if (velocity <= 64+3) {
+            return "mp";
+        } else if (velocity <= 70+5) {
+            return "mf";
+        } else if (velocity <= 80+5) {
+            return "f";
+        } else if (velocity <= 90+13) {
+            return "ff";
+        }
+        return "fff";
     }
 }
