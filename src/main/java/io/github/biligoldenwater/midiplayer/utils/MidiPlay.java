@@ -13,14 +13,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MidiPlay extends BukkitRunnable {
+    private final PlayNote note = new PlayNote();
     private final File midiFile;
+    private final int minimumDelayInMicrosecond = 5000;
+
     private MidiData midiData;
 
     private long tickLength;
     private long tick = 0;
 
-    private double microsecondPerTick = 1000.0;
-    private double microsecondPerOnce = 1000.0;
+    private double microsecondPerTick = minimumDelayInMicrosecond;
+    private double microsecondPerOnce = minimumDelayInMicrosecond;
 
     private boolean running = false;
 
@@ -78,34 +81,89 @@ public class MidiPlay extends BukkitRunnable {
             List<MidiMessage> messages = track.getMessages(tick); // 获取指定 tick 的 MidiMessage 列表
             if (messages == null) continue; // 如果无消息
             for (MidiMessage message : messages) {
-                System.out.printf("@%d Track: %d, ", tick, i);
+                Debug.print(String.format("@%d Track: %d, ", tick, i));
 
                 if (message instanceof ShortMessage) {
                     ShortMessage shortMessage = (ShortMessage) message;
-
-                } else if (message instanceof MetaMessage) {
-                    MetaMessage metaMessage = (MetaMessage) message;
-                    System.out.printf("Meta message: Type: %s, ", Integer.toHexString(metaMessage.getType()));
-
-                    switch (metaMessage.getType()) {
-                        case 0x51: {// 更改速度,微秒 每拍
-                            String dataHex = Hex.encodeHexString(metaMessage.getData());
-                            changeSpeed(Integer.parseInt(dataHex, 16));
-                            System.out.print("Change speed to:" + dataHex);
+                    Debug.print(String.format("Short message: Command: %s, ", Integer.toHexString(shortMessage.getCommand())));
+                    switch (shortMessage.getCommand()) {
+                        case ShortMessage.NOTE_ON: { // wait to finish
+                            note.noteOn(shortMessage.getData1(), 0, shortMessage.getData2());
+                            Debug.print(String.format("Channel: %d, NoteOn: %d, Velocity: %d",
+                                    shortMessage.getChannel(),
+                                    shortMessage.getData1(),
+                                    shortMessage.getData2()));
+                            break;
+                        }
+                        case ShortMessage.NOTE_OFF: { // wait to finish
+                            note.noteOff(shortMessage.getData2(), 0);
+                            Debug.print(String.format("Channel: %d, NoteOff: %d, Velocity: %d",
+                                    shortMessage.getChannel(),
+                                    shortMessage.getData1(),
+                                    shortMessage.getData2()));
+                            break;
+                        }
+                        case ShortMessage.PROGRAM_CHANGE: { // wait to finish
+                            Debug.print(String.format("Channel: %d, Program Change: %d",
+                                    shortMessage.getChannel(),
+                                    shortMessage.getData1()));
                             break;
                         }
                         default: {
-                            System.out.printf("Data: %s; RawMessage:%s", Arrays.toString(metaMessage.getData()), Arrays.toString(metaMessage.getMessage()));
+                            Debug.print(String.format("Channel: %s; Data1:%s, Data2:%s",
+                                    Integer.toHexString(shortMessage.getChannel()),
+                                    Integer.toHexString(shortMessage.getData1()),
+                                    Integer.toHexString(shortMessage.getData1())));
+                        }
+                    }
+                } else if (message instanceof MetaMessage) {
+                    MetaMessage metaMessage = (MetaMessage) message;
+                    Debug.print(String.format("Meta message: Type: %s, ", Integer.toHexString(metaMessage.getType())));
+
+                    switch (metaMessage.getType()) {
+                        case 0x02: { // 版权公告 wait to finish
+                            Debug.print("Copyright: " + new String(metaMessage.getData()));
+                            break;
+                        }
+                        case 0x03: { // 歌曲名称/音轨名称 wait to finish
+                            if (i == 0) {
+                                Debug.print("Song name: " + new String(metaMessage.getData()));
+                            } else {
+                                Debug.print("Track name: " + new String(metaMessage.getData()));
+                            }
+                            break;
+                        }
+                        case 0x05: { // 歌词 wait to finish
+                            Debug.print("Lyrics: " + new String(metaMessage.getData()));
+                            break;
+                        }
+                        case 0x2f: { // 音轨终止 ignore
+                            Debug.print("End of track");
+                            break;
+                        }
+                        case 0x51: { // 更改速度,微秒 每拍
+                            String dataHex = Hex.encodeHexString(metaMessage.getData());
+                            changeSpeed(Integer.parseInt(dataHex, 16));
+                            Debug.print(String.format("Change speed to: %s", dataHex));
+                            break;
+                        }
+                        case 0x58: { // 指定节拍 ignore
+                            break;
+                        }
+                        default: {
+                            Debug.print(String.format("Data: %s; RawMessage:%s",
+                                    Arrays.toString(metaMessage.getData()),
+                                    Arrays.toString(metaMessage.getMessage())));
                         }
                     }
                 } else if (message instanceof SysexMessage) {
                     SysexMessage sysexMessage = (SysexMessage) message;
 
                 } else {
-                    System.out.println("Other Message.");
+                    Debug.print("Other Message.\n");
                 }
 
-                System.out.println();
+                Debug.print("\n");
             }
         }
 
@@ -113,8 +171,7 @@ public class MidiPlay extends BukkitRunnable {
     }
 
     public void calcTicksInOnce() {
-        int min = 1000;
-        double percent = microsecondPerTick / min;
+        double percent = microsecondPerTick / minimumDelayInMicrosecond;
         int times = (int) Math.ceil(1 / percent);
         if (times < 1) times = 1;
         ticksInOnce = times;
