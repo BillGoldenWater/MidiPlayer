@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class TrackData {
     private Map<Long, List<MidiMessage>> midiMessages;
-    private final Map<Byte, Byte> channelInstrument = new HashMap<>();
+    private final Map<Integer, Integer> channelInstrument = new HashMap<>();
 
     public TrackData(Track track) {
         this.loadData(track); // 加载数据
@@ -24,7 +24,7 @@ public class TrackData {
             MidiEvent event = track.get(i); // 获取事件
             List<MidiMessage> messages = midiMessages.get(event.getTick()); // 尝试获取已存在的消息列表
             MidiMessage message = event.getMessage();
-            
+
             if (messages == null) { // 如果为空新建一个
                 messages = new ArrayList<>();
             }
@@ -34,15 +34,15 @@ public class TrackData {
         }
     }
 
-    public byte getChannelInstrument(byte channelId) {
-        Byte instrument = channelInstrument.get(channelId);
+    public int getChannelInstrument(int channelId) {
+        Integer instrument = channelInstrument.get(channelId);
         if (instrument == null) {
             instrument = 0;
         }
         return instrument;
     }
 
-    public void setChannelInstrument(byte channelId, byte instrument) {
+    public void setChannelInstrument(int channelId, int instrument) {
         channelInstrument.put(channelId, instrument);
     }
 

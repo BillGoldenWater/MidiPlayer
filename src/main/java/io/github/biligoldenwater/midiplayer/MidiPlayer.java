@@ -8,7 +8,7 @@ import java.io.File;
 public final class MidiPlayer extends JavaPlugin {
     private static MidiPlayer instance;
 
-    private boolean debug = true;
+    private boolean debug = false;
 
     @Override
     public void onLoad() {
@@ -24,8 +24,8 @@ public final class MidiPlayer extends JavaPlugin {
     public static void main(String[] args) {
 //        File file = new File("D:\\Music\\Midis\\U.N.オーエンは彼女なのか？.mid");
 //        File file = new File("D:\\Music\\Midis\\When Christmas comes to town.mid");
-        File file = new File("D:\\Music\\Midis\\千本樱.mid");
-//        File file = new File("D:\\Music\\Midis\\HedwigsTheme.mid");
+//        File file = new File("D:\\Music\\Midis\\千本樱.mid");
+        File file = new File("D:\\Music\\Midis\\HedwigsTheme.mid");
         new MidiPlay(file).run();
     }
 

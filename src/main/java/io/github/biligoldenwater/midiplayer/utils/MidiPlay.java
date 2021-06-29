@@ -22,7 +22,7 @@ public class MidiPlay extends BukkitRunnable {
     private long tickLength;
     private long tick = 0;
 
-    private double microsecondPerTick = minimumDelayInMicrosecond;
+    private double microsecondPerTick = 1000.0;
     private double microsecondPerOnce = minimumDelayInMicrosecond;
 
     private boolean running = false;
@@ -74,6 +74,8 @@ public class MidiPlay extends BukkitRunnable {
             return;
         }
 
+        calcTicksInOnce();
+
         List<TrackData> tracks = midiData.getTracks(); // 获取所有轨道
         for (int i = 0, len = tracks.size(); i < len; i++) {
             TrackData track = tracks.get(i); // 获取当前轨道
@@ -88,22 +90,25 @@ public class MidiPlay extends BukkitRunnable {
                     Debug.print(String.format("Short message: Command: %s, ", Integer.toHexString(shortMessage.getCommand())));
                     switch (shortMessage.getCommand()) {
                         case ShortMessage.NOTE_ON: { // wait to finish
-                            note.noteOn(shortMessage.getData1(), 0, shortMessage.getData2());
-                            Debug.print(String.format("Channel: %d, NoteOn: %d, Velocity: %d",
+                            note.noteOn(shortMessage.getChannel(), track.getChannelInstrument(shortMessage.getChannel()), shortMessage.getData1(), shortMessage.getData2());
+                            Debug.print(String.format("Channel: %d, Instrument: %d, NoteOn: %d, Velocity: %d",
                                     shortMessage.getChannel(),
+                                    track.getChannelInstrument(shortMessage.getChannel()),
                                     shortMessage.getData1(),
                                     shortMessage.getData2()));
                             break;
                         }
                         case ShortMessage.NOTE_OFF: { // wait to finish
-                            note.noteOff(shortMessage.getData2(), 0);
-                            Debug.print(String.format("Channel: %d, NoteOff: %d, Velocity: %d",
+                            note.noteOff(shortMessage.getChannel(), track.getChannelInstrument(shortMessage.getChannel()), shortMessage.getData1(), shortMessage.getData2());
+                            Debug.print(String.format("Channel: %d, Instrument: %d, NoteOff: %d, Velocity: %d",
                                     shortMessage.getChannel(),
+                                    track.getChannelInstrument(shortMessage.getChannel()),
                                     shortMessage.getData1(),
                                     shortMessage.getData2()));
                             break;
                         }
-                        case ShortMessage.PROGRAM_CHANGE: { // wait to finish
+                        case ShortMessage.PROGRAM_CHANGE: {
+                            track.setChannelInstrument(shortMessage.getChannel(), shortMessage.getData1());
                             Debug.print(String.format("Channel: %d, Program Change: %d",
                                     shortMessage.getChannel(),
                                     shortMessage.getData1()));
@@ -121,6 +126,10 @@ public class MidiPlay extends BukkitRunnable {
                     Debug.print(String.format("Meta message: Type: %s, ", Integer.toHexString(metaMessage.getType())));
 
                     switch (metaMessage.getType()) {
+                        case 0x01: { // 文字事件
+                            Debug.print("Text Event: " + new String(metaMessage.getData()));
+                            break;
+                        }
                         case 0x02: { // 版权公告 wait to finish
                             Debug.print("Copyright: " + new String(metaMessage.getData()));
                             break;
@@ -133,6 +142,10 @@ public class MidiPlay extends BukkitRunnable {
                             }
                             break;
                         }
+                        case 0x04: { // 乐器名 wait to finish
+                            Debug.print("Instrument Name: " + new String(metaMessage.getData()));
+                            break;
+                        }
                         case 0x05: { // 歌词 wait to finish
                             Debug.print("Lyrics: " + new String(metaMessage.getData()));
                             break;
@@ -143,13 +156,14 @@ public class MidiPlay extends BukkitRunnable {
                         }
                         case 0x51: { // 更改速度,微秒 每拍
                             String dataHex = Hex.encodeHexString(metaMessage.getData());
-                            changeSpeed(Integer.parseInt(dataHex, 16));
+                            setSpeed(Integer.parseInt(dataHex, 16));
                             Debug.print(String.format("Change speed to: %s", dataHex));
                             break;
                         }
-                        case 0x58: { // 指定节拍 ignore
+                        case 0x58:// 指定节拍 ignore
+                        case 0x59:// 秘钥签名 ignore
+                            Debug.print("Ignored");
                             break;
-                        }
                         default: {
                             Debug.print(String.format("Data: %s; RawMessage:%s",
                                     Arrays.toString(metaMessage.getData()),
@@ -160,7 +174,7 @@ public class MidiPlay extends BukkitRunnable {
                     SysexMessage sysexMessage = (SysexMessage) message;
 
                 } else {
-                    Debug.print("Other Message.\n");
+                    Debug.print("Other Message.");
                 }
 
                 Debug.print("\n");
@@ -177,7 +191,7 @@ public class MidiPlay extends BukkitRunnable {
         ticksInOnce = times;
     }
 
-    public void changeSpeed(int microsecondPerBeat) throws MidiData.UnsupportedMidiFileType {
+    public void setSpeed(int microsecondPerBeat) throws MidiData.UnsupportedMidiFileType {
         microsecondPerTick = midiData.getMicrosecondPerTick(microsecondPerBeat);
         calcTicksInOnce();
         microsecondPerOnce = microsecondPerTick * ticksInOnce;

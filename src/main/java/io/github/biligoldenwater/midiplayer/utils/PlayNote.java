@@ -18,7 +18,7 @@ public class PlayNote {
             midiSynth.open();
 
             //get and load default instrument and channel lists
-            instr = midiSynth.getDefaultSoundbank().getInstruments();
+            midiSynth.loadAllInstruments(midiSynth.getDefaultSoundbank());
 
             mChannels = midiSynth.getChannels();
         } catch (MidiUnavailableException e) {
@@ -26,15 +26,13 @@ public class PlayNote {
         }
     }
 
-    public void noteOn(int note, int instrument, int velocity) {
-        midiSynth.loadInstrument(instr[instrument]);//load an instrument
-
-        mChannels[0].noteOn(note, velocity);//On channel 0, play note number 60 with velocity 100
+    public void noteOn(int channel, int instrument, int note, int velocity) {
+        mChannels[channel].programChange(instrument);
+        mChannels[channel].noteOn(note, velocity);//On channel 0, play note number 60 with velocity 100
     }
 
-    public void noteOff(int note, int instrument) {
-        midiSynth.loadInstrument(instr[instrument]);//load an instrument
-
-        mChannels[0].noteOff(note);//turn of the note
+    public void noteOff(int channel, int instrument, int note, int velocity) {
+        mChannels[channel].programChange(instrument);
+        mChannels[channel].noteOff(note, velocity);//turn of the note
     }
 }
