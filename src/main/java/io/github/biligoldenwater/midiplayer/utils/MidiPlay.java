@@ -1,6 +1,7 @@
 package io.github.biligoldenwater.midiplayer.utils;
 
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
+import org.bukkit.Location;
 import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Hex;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,8 +32,14 @@ public class MidiPlay extends BukkitRunnable {
 
     private int ticksInOnce = 1;
 
-    public MidiPlay(File midiFile, Player targetPlayer, boolean isBroadcast, boolean useStop) {
-        this.playNote = new PlayNote(targetPlayer, isBroadcast);
+    public MidiPlay(File midiFile, boolean useStop, PlayNote.ResourcePack resourcePack, Player targetPlayer, boolean isBroadcast, int range) {
+        this.playNote = new PlayNote(resourcePack, targetPlayer, isBroadcast, range);
+        this.midiFile = midiFile;
+        this.useStop = useStop;
+    }
+
+    public MidiPlay(File midiFile, boolean useStop, PlayNote.ResourcePack resourcePack, Location loc, int range) {
+        this.playNote = new PlayNote(resourcePack, loc, range);
         this.midiFile = midiFile;
         this.useStop = useStop;
     }
@@ -61,10 +68,7 @@ public class MidiPlay extends BukkitRunnable {
                 int nanos = (int) (microsecondPerOnce % 1000);
 
                 long finalMillisDelay = millis - timeCost;
-                if (finalMillisDelay < 0) finalMillisDelay = 0;
-
-                Thread.sleep(finalMillisDelay, nanos);
-
+                Thread.sleep(Math.max(finalMillisDelay, 0), nanos);
             }
 
         } catch (Exception e) {
@@ -86,6 +90,7 @@ public class MidiPlay extends BukkitRunnable {
 
             List<MidiMessage> messages = track.getMessages(tick); // 获取指定 tick 的 MidiMessage 列表
             if (messages == null) continue; // 如果无消息
+
             for (MidiMessage message : messages) {
                 Debug.print(String.format("@%d Track: %d, ", tick, i));
 

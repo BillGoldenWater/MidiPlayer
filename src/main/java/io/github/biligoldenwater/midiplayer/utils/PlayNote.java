@@ -1,55 +1,109 @@
 package io.github.biligoldenwater.midiplayer.utils;
 
 import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class PlayNote {
-    private final Player player;
-    private final boolean isBroadcast;
+    private final ResourcePack resourcePack;
+    private final boolean broadcast;
+    private final int range;
 
-    public PlayNote(Player targetPlayer, boolean isBroadcast) {
+    private final Player player;
+    private final Location loc;
+
+    public PlayNote(ResourcePack resourcePack, Player targetPlayer, boolean broadcast, int range) {
+        this.resourcePack = resourcePack;
         this.player = targetPlayer;
-        this.isBroadcast = isBroadcast;
+        this.broadcast = broadcast;
+        this.range = range;
+        this.loc = targetPlayer.getLocation();
     }
 
-    public float calcNotePitch(int note) {
-//        return (float) Math.pow(2, (note - 66) / 12.0);
-        return (float) Math.pow(2, (note - 66) / 12.0);
+    public PlayNote(ResourcePack resourcePack, Location loc, int range) {
+        this.resourcePack = resourcePack;
+        this.loc = loc;
+        this.range = range;
+        this.broadcast = false;
+        this.player = null;
     }
 
     public void noteOn(int instrumentId, int note, int velocity) {
-        Location loc = player.getLocation();
-        World world = loc.getWorld();
-        if (isBroadcast && world != null) {
-//            world.playSound(loc, Sound.BLOCK_NOTE_BLOCK_HARP, velocity * 2, calcNotePitch(note));
-            world.playSound(loc, "minecraft:lkrb.piano.p"+note+ getVelocity(velocity), velocity * 2, 1);
+        if (player == null || broadcast) { // 如果玩家为null(固定位置) 或 为广播
+            Location loc;
+            if (player != null) { // 如果玩家不为空 则使用玩家的位置
+                loc = player.getLocation();
+            } else {
+                loc = this.loc;
+            }
+
+            assert loc.getWorld() != null;
+            for (Player p : loc.getWorld().getPlayers()) { // 获取世界内所有玩家
+                if (p.getLocation().distance(loc) <= range) { // 如果在范围内则播放
+                    playSound(resourcePack, p, loc, instrumentId, note, (float) velocity / 127);
+                }
+            }
         } else {
-            player.playSound(loc, Sound.BLOCK_NOTE_BLOCK_HARP, velocity * 2, calcNotePitch(note));
+            playSound(resourcePack, player, player.getLocation(), instrumentId, note, velocity / 127.0F);
         }
     }
 
     public void noteOff(int instrumentId, int note) {
+        if (player == null || broadcast) { // 如果玩家为null(固定位置) 或 为广播
+            Location loc;
+            if (player != null) { // 如果玩家不为空 则使用玩家的位置
+                loc = player.getLocation();
+            } else {
+                loc = this.loc;
+            }
 
+            assert loc.getWorld() != null;
+            for (Player p : loc.getWorld().getPlayers()) { // 获取世界内所有玩家
+                if (p.getLocation().distance(loc) <= range) { // 如果在范围内则停止
+                    stopSound(resourcePack, p, instrumentId, note);
+                }
+            }
+        } else {
+            stopSound(resourcePack, player, instrumentId, note);
+        }
     }
 
-    public String getVelocity(long velocity) {
-        if (velocity <= 20+10) {
-            return "ppp";
-        } else if (velocity <= 40+5) {
-            return "pp";
-        } else if (velocity <= 50+7) {
-            return "p";
-        } else if (velocity <= 64+3) {
-            return "mp";
-        } else if (velocity <= 70+5) {
-            return "mf";
-        } else if (velocity <= 80+5) {
-            return "f";
-        } else if (velocity <= 90+13) {
-            return "ff";
+    public static void playSound(ResourcePack resourcePack, Player player, Location loc, int instrumentId, int note, float velocity) {
+        switch (resourcePack) {
+            case realPiano: {
+                if (instrumentId == 0) {
+                    player.playSound(loc, "minecraft:lkrb.piano.p" + note + "fff", velocity * 2, 1);
+                }
+                break;
+            }
+            case MSGSPiano: {
+                if (instrumentId == 0) {
+                    player.playSound(loc, "minecraft:piano." + note, velocity * 2, 1);
+                }
+                break;
+            }
         }
-        return "fff";
+    }
+
+    public static void stopSound(ResourcePack resourcePack, Player player, int instrumentId, int note) {
+        switch (resourcePack) {
+            case realPiano: {
+                if (instrumentId == 0) {
+                    player.stopSound("minecraft:lkrb.piano.p" + note + "fff");
+                }
+                break;
+            }
+            case MSGSPiano: {
+                if (instrumentId == 0) {
+                    player.stopSound("minecraft:piano." + note);
+                }
+                break;
+            }
+        }
+    }
+
+    public enum ResourcePack {
+        vanilla,
+        realPiano,
+        MSGSPiano
     }
 }

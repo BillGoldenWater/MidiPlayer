@@ -6,7 +6,7 @@
 
     <groupId>io.github.biligoldenwater</groupId>
     <artifactId>MidiPlayer</artifactId>
-    <version>v1.3.0</version>
+    <version>1.3.0</version>
     <packaging>jar</packaging>
 
     <name>MidiPlayer</name>
@@ -65,7 +65,7 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
             <version>1.16.5-R0.1-SNAPSHOT</version>
-<!--            <scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

@@ -12,7 +12,7 @@ public final class MidiPlayer extends JavaPlugin {
     private static MidiPlayer instance;
     private final Map<String, MidiPlay> playList = new HashMap<>();
 
-    private boolean debug = false;
+    private boolean debug = true;
 
     @Override
     public void onLoad() {
