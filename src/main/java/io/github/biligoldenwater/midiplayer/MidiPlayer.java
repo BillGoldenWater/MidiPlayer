@@ -31,6 +31,8 @@ public final class MidiPlayer extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+
+        playList.forEach((key, value) -> value.stop());
         getLogger().info("Disabled.");//输出已禁用消息到日志
     }
 
