@@ -1,6 +1,8 @@
 package io.github.biligoldenwater.midiplayer.utils;
 
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
+import io.github.biligoldenwater.midiplayer.data.MidiData;
+import io.github.biligoldenwater.midiplayer.data.TrackData;
 import org.apache.commons.codec.binary.Hex;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -15,7 +17,7 @@ import java.util.List;
 public class MidiPlay extends BukkitRunnable {
     private final PlayNote playNote;
     private final File midiFile;
-    private final int minimumDelayInMicrosecond = 5000;
+    private final int minimumDelayInMicrosecond = 10 * 1000; // 50 ms
     private final boolean useStop;
 
     private MidiData midiData;

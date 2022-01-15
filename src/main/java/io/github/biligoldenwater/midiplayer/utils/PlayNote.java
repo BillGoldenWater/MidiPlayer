@@ -48,11 +48,11 @@ public class PlayNote {
             assert loc.getWorld() != null;
             for (Player p : loc.getWorld().getPlayers()) { // 获取世界内所有玩家
                 if (p.getLocation().distance(loc) <= range) { // 如果在范围内则播放
-                    playSound(resourcePack, p, loc, instrumentId, note, (float) velocity / 127);
+                    playNote(resourcePack, p, loc, instrumentId, note, (float) velocity / 127);
                 }
             }
         } else {
-            playSound(resourcePack, player, player.getLocation(), instrumentId, note, velocity / 127.0F);
+            playNote(resourcePack, player, player.getLocation(), instrumentId, note, velocity / 127.0F);
         }
     }
 
@@ -70,11 +70,11 @@ public class PlayNote {
             assert loc.getWorld() != null;
             for (Player p : loc.getWorld().getPlayers()) { // 获取世界内所有玩家
                 if (p.getLocation().distance(loc) <= range) { // 如果在范围内则停止
-                    stopSound(resourcePack, p, instrumentId, note);
+                    stopNote(resourcePack, p, instrumentId, note);
                 }
             }
         } else {
-            stopSound(resourcePack, player, instrumentId, note);
+            stopNote(resourcePack, player, instrumentId, note);
         }
     }
 
@@ -82,7 +82,7 @@ public class PlayNote {
         return (float) Math.pow(2.0, (note - 12) / 12f);
     }
 
-    public static void playSound(ResourcePack resourcePack, Player player, Location loc, int instrumentId, int note, float velocity) {
+    public static void playNote(ResourcePack resourcePack, Player player, Location loc, int instrumentId, int note, float velocity) {
         switch (resourcePack) {
             case vanilla: {
                 switch (instrumentId) {
@@ -203,7 +203,7 @@ public class PlayNote {
         }
     }
 
-    public static void stopSound(ResourcePack resourcePack, Player player, int instrumentId, int note) {
+    public static void stopNote(ResourcePack resourcePack, Player player, int instrumentId, int note) {
         switch (resourcePack) {
             case realPiano: {
                 if (instrumentId == 0) {

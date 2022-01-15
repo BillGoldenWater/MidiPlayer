@@ -1,4 +1,4 @@
-package io.github.biligoldenwater.midiplayer.utils;
+package io.github.biligoldenwater.midiplayer.data;
 
 import javax.annotation.Nullable;
 import javax.sound.midi.MidiEvent;
