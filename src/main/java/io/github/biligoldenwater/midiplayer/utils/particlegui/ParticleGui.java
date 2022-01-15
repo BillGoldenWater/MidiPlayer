@@ -52,7 +52,7 @@ public class ParticleGui extends BukkitRunnable {
             for (int y = 0; y < height; y++) {
                 PixelColor pixelColor = window.getPixel(x, y);
                 if (pixelColor != null) {
-                    drawPixel(x - halfWidth, y - halfHeight, pixelColor);
+                    drawPixel(halfWidth - x, y - halfHeight, pixelColor);
                 }
             }
         }
