@@ -14,8 +14,6 @@ public class Panel extends Component {
     private final List<Component> children;
     // option
     private PixelColor borderColor;
-    // data
-    private boolean changed;
 
     public Panel(int x, int y, int width, int height, boolean drawBorder) {
         super(x, y, width, height, false);
@@ -80,13 +78,8 @@ public class Panel extends Component {
         //endregion
     }
 
-    @Override
-    public boolean needRender() {
-        return changed;
-    }
-
     public void addChild(Component child) {
-        changed = true;
+        onChange();
         child.setParent(this);
         this.children.add(child);
     }
@@ -105,7 +98,7 @@ public class Panel extends Component {
     }
 
     public void setBorderColor(PixelColor borderColor) {
-        changed = true;
+        onChange();
         this.borderColor = borderColor;
     }
 }

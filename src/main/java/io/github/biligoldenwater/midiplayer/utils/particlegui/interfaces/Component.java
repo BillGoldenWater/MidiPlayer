@@ -8,6 +8,7 @@ public abstract class Component {
     private int width;
     private int height;
     private Component parent;
+    private boolean changed;
     protected PixelColor[] pixels;
 
     public Component(int x, int y, int width, int height) {
@@ -26,7 +27,11 @@ public abstract class Component {
     public abstract void render();
 
     public boolean needRender() {
-        return false;
+        return changed;
+    }
+
+    public void onChange() {
+        this.changed = true;
     }
 
     public void setPixel(int x, int y, PixelColor pixelColor) {
