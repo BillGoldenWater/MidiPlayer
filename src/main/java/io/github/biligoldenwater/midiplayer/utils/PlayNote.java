@@ -8,28 +8,35 @@ import org.bukkit.entity.Player;
 public class PlayNote {
     private final ResourcePack resourcePack;
     private final boolean broadcast;
+    private final boolean forcePiano;
     private final int range;
 
     private final Player player;
     private final Location loc;
 
-    public PlayNote(ResourcePack resourcePack, Player targetPlayer, boolean broadcast, int range) {
+    public PlayNote(ResourcePack resourcePack, Player targetPlayer, boolean broadcast, int range, boolean forcePiano) {
         this.resourcePack = resourcePack;
-        this.player = targetPlayer;
         this.broadcast = broadcast;
         this.range = range;
+        this.forcePiano = forcePiano;
+
+        this.player = targetPlayer;
         this.loc = targetPlayer.getLocation();
     }
 
-    public PlayNote(ResourcePack resourcePack, Location loc, int range) {
+    public PlayNote(ResourcePack resourcePack, Location loc, int range, boolean forcePiano) {
         this.resourcePack = resourcePack;
-        this.loc = loc;
-        this.range = range;
         this.broadcast = false;
+        this.range = range;
+        this.forcePiano = forcePiano;
+
         this.player = null;
+        this.loc = loc;
     }
 
     public void noteOn(int instrumentId, int note, int velocity) {
+        if (forcePiano) instrumentId = 0;
+
         if (player == null || broadcast) { // 如果玩家为null(固定位置) 或 为广播
             Location loc;
             if (player != null) { // 如果玩家不为空 则使用玩家的位置
@@ -50,6 +57,8 @@ public class PlayNote {
     }
 
     public void noteOff(int instrumentId, int note) {
+        if (forcePiano) instrumentId = 0;
+
         if (player == null || broadcast) { // 如果玩家为null(固定位置) 或 为广播
             Location loc;
             if (player != null) { // 如果玩家不为空 则使用玩家的位置
@@ -80,7 +89,7 @@ public class PlayNote {
                     // block.note_block.pling F#3-F#5
                     // block.note_block.didgeridoo F#1-F#3
                     // block.note_block.cow_bell F#4-F#6
-                    
+
                     // block.note_block.basedrum
                     // block.note_block.hat
                     // block.note_block.snare

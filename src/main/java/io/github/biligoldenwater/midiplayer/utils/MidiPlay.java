@@ -1,9 +1,7 @@
 package io.github.biligoldenwater.midiplayer.utils;
 
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
-import org.bukkit.Location;
-import org.bukkit.craftbukkit.libs.org.apache.commons.codec.binary.Hex;
-import org.bukkit.entity.Player;
+import org.apache.commons.codec.binary.Hex;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.sound.midi.MetaMessage;
@@ -32,14 +30,8 @@ public class MidiPlay extends BukkitRunnable {
 
     private int ticksInOnce = 1;
 
-    public MidiPlay(File midiFile, boolean useStop, PlayNote.ResourcePack resourcePack, Player targetPlayer, boolean isBroadcast, int range) {
-        this.playNote = new PlayNote(resourcePack, targetPlayer, isBroadcast, range);
-        this.midiFile = midiFile;
-        this.useStop = useStop;
-    }
-
-    public MidiPlay(File midiFile, boolean useStop, PlayNote.ResourcePack resourcePack, Location loc, int range) {
-        this.playNote = new PlayNote(resourcePack, loc, range);
+    public MidiPlay(File midiFile, boolean useStop, PlayNote playNote) {
+        this.playNote = playNote;
         this.midiFile = midiFile;
         this.useStop = useStop;
     }
