@@ -2,7 +2,9 @@ package io.github.biligoldenwater.midiplayer.listener;
 
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
 import io.github.biligoldenwater.midiplayer.utils.particlegui.ParticleGui;
+import io.github.biligoldenwater.midiplayer.utils.particlegui.PixelColor;
 import io.github.biligoldenwater.midiplayer.utils.particlegui.component.Window;
+import org.bukkit.Color;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -35,6 +37,10 @@ public class OnBlockBreakEvent implements Listener {
 //        midiPlay.runTaskAsynchronously(MidiPlayer.getInstance());
 //        playList.put(playerName, midiPlay);
 
-        new ParticleGui(event.getPlayer(), new Window(384, 240)).runTaskTimerAsynchronously(MidiPlayer.getInstance(), 0, 0);
+        Window window = new Window(384, 240);
+        window.setBorderColor(new PixelColor(Color.GRAY));
+
+        new ParticleGui(event.getPlayer(), window)
+                .runTaskTimerAsynchronously(MidiPlayer.getInstance(), 0, 0);
     }
 }

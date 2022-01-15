@@ -8,9 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Panel extends Component {
+    // final option
     private final boolean drawBorder;
-
+    // final data
     private final List<Component> children;
+    // option
+    private PixelColor borderColor;
+    // data
+    private boolean changed;
 
     public Panel(int x, int y, int width, int height, boolean drawBorder) {
         super(x, y, width, height, false);
@@ -18,6 +23,8 @@ public class Panel extends Component {
         this.drawBorder = drawBorder;
 
         this.children = new ArrayList<>();
+
+        this.borderColor = new PixelColor(Color.BLACK);
 
         this.render();
     }
@@ -62,18 +69,24 @@ public class Panel extends Component {
         //region draw border
         if (drawBorder) {
             for (int y = 0; y < this.getHeight(); y++) {
-                pixels[y * width] = new PixelColor(Color.BLACK);
-                pixels[(this.getWidth() - 1) + y * width] = new PixelColor(Color.BLACK);
+                pixels[y * width] = borderColor;
+                pixels[(this.getWidth() - 1) + y * width] = borderColor;
             }
             for (int x = 0; x < this.getWidth(); x++) {
-                pixels[x] = new PixelColor(Color.BLACK);
-                pixels[x + (this.getHeight() - 1) * width] = new PixelColor(Color.BLACK);
+                pixels[x] = borderColor;
+                pixels[x + (this.getHeight() - 1) * width] = borderColor;
             }
         }
         //endregion
     }
 
+    @Override
+    public boolean needRender() {
+        return changed;
+    }
+
     public void addChild(Component child) {
+        changed = true;
         child.setParent(this);
         this.children.add(child);
     }
@@ -85,5 +98,14 @@ public class Panel extends Component {
 
     public boolean isDrawBorder() {
         return drawBorder;
+    }
+
+    public PixelColor getBorderColor() {
+        return borderColor;
+    }
+
+    public void setBorderColor(PixelColor borderColor) {
+        changed = true;
+        this.borderColor = borderColor;
     }
 }

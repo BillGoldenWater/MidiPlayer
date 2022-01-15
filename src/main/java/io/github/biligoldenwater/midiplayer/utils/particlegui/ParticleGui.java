@@ -35,7 +35,7 @@ public class ParticleGui extends BukkitRunnable {
         long end = System.currentTimeMillis();
         player.sendMessage(String.format("cost: %dms", end - start));
 
-        if (tick == 1000) {
+        if (tick >= 200) {
             this.cancel();
         }
         tick++;
