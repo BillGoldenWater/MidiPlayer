@@ -30,7 +30,7 @@ public class ParticleGui extends BukkitRunnable {
 
         long start = System.currentTimeMillis();
         this.updateOffsetInfo();
-        window.render();
+        if (window.needRender()) window.render();
         this.drawWindow(window);
         long end = System.currentTimeMillis();
         player.sendMessage(String.format("cost: %dms", end - start));
@@ -50,15 +50,15 @@ public class ParticleGui extends BukkitRunnable {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                Pixel pixel = window.getPixel(x, y);
-                if (pixel != null) {
-                    drawPixel(x - halfWidth, y - halfHeight, pixel);
+                PixelColor pixelColor = window.getPixel(x, y);
+                if (pixelColor != null) {
+                    drawPixel(x - halfWidth, y - halfHeight, pixelColor);
                 }
             }
         }
     }
 
-    public void drawPixel(int x, int y, Pixel pixel) {
+    public void drawPixel(int x, int y, PixelColor pixelColor) {
         Vector pixelLoc = new Vector();
 
         pixelLoc.setX(x * 0.04);
@@ -69,7 +69,7 @@ public class ParticleGui extends BukkitRunnable {
         pixelLoc.rotateAroundAxis(pitchAxis, pitch);
         Location tLoc = player.getEyeLocation().add(pixelLoc);
 
-        Particle.DustOptions dust = new Particle.DustOptions(pixel.toBukkitColor(), 0.2f);
+        Particle.DustOptions dust = new Particle.DustOptions(pixelColor.toBukkitColor(), 0.2f);
 
         player.spawnParticle(Particle.REDSTONE, tLoc, 1, dust);
     }

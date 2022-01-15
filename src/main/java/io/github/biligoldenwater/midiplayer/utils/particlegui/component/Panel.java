@@ -1,6 +1,6 @@
 package io.github.biligoldenwater.midiplayer.utils.particlegui.component;
 
-import io.github.biligoldenwater.midiplayer.utils.particlegui.Pixel;
+import io.github.biligoldenwater.midiplayer.utils.particlegui.PixelColor;
 import io.github.biligoldenwater.midiplayer.utils.particlegui.interfaces.Component;
 import org.bukkit.Color;
 
@@ -13,11 +13,13 @@ public class Panel extends Component {
     private final List<Component> children;
 
     public Panel(int x, int y, int width, int height, boolean drawBorder) {
-        super(x, y, width, height);
+        super(x, y, width, height, false);
 
         this.drawBorder = drawBorder;
 
         this.children = new ArrayList<>();
+
+        this.render();
     }
 
     public void render() {
@@ -25,6 +27,8 @@ public class Panel extends Component {
 
         //region draw children
         for (Component child : children) {
+            if (!child.needRender()) continue;
+
             child.render();
         }
         for (Component child : children) {
@@ -39,17 +43,17 @@ public class Panel extends Component {
                             posY >= this.getHeight() - (drawBorder ? 1 : 0))
                         continue; // 当超出窗口边界时
 
-                    Pixel pixel = child.getPixel(x, y);
-                    if (pixel == null || pixel.getAlpha() == 0) continue; // 组件像素为空或完全透明时
+                    PixelColor pixelColor = child.getPixel(x, y);
+                    if (pixelColor == null || pixelColor.getAlpha() == 0) continue; // 组件像素颜色为空或完全透明时
 
-                    Pixel originalPixel = getPixel(posX, posY);
-                    if (originalPixel == null) { // 如果窗口当前像素为空
-                        originalPixel = pixel;
+                    PixelColor originalPixelColor = getPixel(posX, posY);
+                    if (originalPixelColor == null) { // 如果窗口当前像素为空
+                        originalPixelColor = pixelColor;
                     } else {
-                        originalPixel.overlap(pixel);
+                        originalPixelColor.overlap(pixelColor);
                     }
 
-                    pixels[posX + posY * width] = originalPixel;
+                    pixels[posX + posY * width] = originalPixelColor;
                 }
             }
         }
@@ -58,22 +62,28 @@ public class Panel extends Component {
         //region draw border
         if (drawBorder) {
             for (int y = 0; y < this.getHeight(); y++) {
-                pixels[y * width] = new Pixel(Color.BLACK);
-                pixels[(this.getWidth() - 1) + y * width] = new Pixel(Color.BLACK);
+                pixels[y * width] = new PixelColor(Color.BLACK);
+                pixels[(this.getWidth() - 1) + y * width] = new PixelColor(Color.BLACK);
             }
             for (int x = 0; x < this.getWidth(); x++) {
-                pixels[x] = new Pixel(Color.BLACK);
-                pixels[x + (this.getHeight() - 1) * width] = new Pixel(Color.BLACK);
+                pixels[x] = new PixelColor(Color.BLACK);
+                pixels[x + (this.getHeight() - 1) * width] = new PixelColor(Color.BLACK);
             }
         }
         //endregion
     }
 
     public void addChild(Component child) {
+        child.setParent(this);
         this.children.add(child);
     }
 
     public void removeChild(Component child) {
+        child.setParent(null);
         this.children.remove(child);
+    }
+
+    public boolean isDrawBorder() {
+        return drawBorder;
     }
 }

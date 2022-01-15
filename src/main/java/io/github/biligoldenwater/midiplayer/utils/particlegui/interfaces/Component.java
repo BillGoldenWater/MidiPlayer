@@ -1,30 +1,48 @@
 package io.github.biligoldenwater.midiplayer.utils.particlegui.interfaces;
 
-import io.github.biligoldenwater.midiplayer.utils.particlegui.Pixel;
+import io.github.biligoldenwater.midiplayer.utils.particlegui.PixelColor;
 
 public abstract class Component {
     private int x;
     private int y;
     private int width;
     private int height;
-    protected Pixel[] pixels;
+    private Component parent;
+    protected PixelColor[] pixels;
 
     public Component(int x, int y, int width, int height) {
+        this(x, y, width, height, true);
+    }
+
+    public Component(int x, int y, int width, int height, boolean renderImmediately) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.pixels = new Pixel[width * height];
+        this.pixels = new PixelColor[width * height];
+        if (renderImmediately) this.render();
     }
 
     public abstract void render();
 
-    public void setPixel(int x, int y, Pixel pixel) {
-        pixels[x + y * width] = pixel;
+    public boolean needRender() {
+        return false;
     }
 
-    public Pixel getPixel(int x, int y) {
+    public void setPixel(int x, int y, PixelColor pixelColor) {
+        pixels[x + y * width] = pixelColor;
+    }
+
+    public PixelColor getPixel(int x, int y) {
         return pixels[x + y * width];
+    }
+
+    public Component getParent() {
+        return parent;
+    }
+
+    public void setParent(Component parent) {
+        this.parent = parent;
     }
 
     public int getX() {
@@ -54,6 +72,6 @@ public abstract class Component {
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
-        this.pixels = new Pixel[width * height];
+        this.pixels = new PixelColor[width * height];
     }
 }
