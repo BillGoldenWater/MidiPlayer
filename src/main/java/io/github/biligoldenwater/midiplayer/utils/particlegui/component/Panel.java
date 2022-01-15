@@ -78,6 +78,14 @@ public class Panel extends Component {
         //endregion
     }
 
+    @Override
+    public boolean needRender() {
+        for (Component child : children) {
+            if (child.needRender()) return true;
+        }
+        return super.needRender();
+    }
+
     public void addChild(Component child) {
         onChange();
         child.setParent(this);
