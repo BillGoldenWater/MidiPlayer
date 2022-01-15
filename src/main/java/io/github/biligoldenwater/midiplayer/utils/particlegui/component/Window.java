@@ -5,8 +5,4 @@ public class Window extends Panel {
     public Window(int width, int height) {
         super(0, 0, width, height, true);
     }
-
-    public void render() {
-        super.render();
-    }
 }
