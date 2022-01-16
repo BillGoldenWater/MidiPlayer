@@ -9,6 +9,8 @@ public abstract class Component {
     private int height;
     private Component parent;
     private boolean changed;
+    protected int clientWidth;
+    protected int clientHeight;
     protected PixelColor[] pixels;
 
     public Component(int x, int y, int width, int height) {
@@ -20,6 +22,8 @@ public abstract class Component {
         this.y = y;
         this.width = width;
         this.height = height;
+        this.clientWidth = width;
+        this.clientHeight = height;
         this.pixels = new PixelColor[width * height];
         if (renderImmediately) this.render();
     }
@@ -32,6 +36,10 @@ public abstract class Component {
 
     public void onChange() {
         this.changed = true;
+    }
+
+    public void changeApplied() {
+        this.changed = false;
     }
 
     public void setPixel(int x, int y, PixelColor pixelColor) {
@@ -75,8 +83,20 @@ public abstract class Component {
     }
 
     public void setSize(int width, int height) {
+        if (width == this.width && height == this.height) return;
+        onChange();
         this.width = width;
         this.height = height;
+        this.clientWidth = width;
+        this.clientHeight = height;
         this.pixels = new PixelColor[width * height];
+    }
+
+    public int getClientWidth() {
+        return clientWidth;
+    }
+
+    public int getClientHeight() {
+        return clientHeight;
     }
 }

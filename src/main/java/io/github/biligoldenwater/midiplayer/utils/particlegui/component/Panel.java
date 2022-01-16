@@ -17,6 +17,10 @@ public class Panel extends Component {
 
     public Panel(int x, int y, int width, int height, boolean drawBorder) {
         super(x, y, width, height, false);
+        if (drawBorder) {
+            this.clientWidth = Math.max(width - 2, 0);
+            this.clientHeight = Math.max(height - 2, 0);
+        }
 
         this.drawBorder = drawBorder;
 
@@ -76,6 +80,8 @@ public class Panel extends Component {
             }
         }
         //endregion
+
+        changeApplied();
     }
 
     @Override
@@ -108,5 +114,14 @@ public class Panel extends Component {
     public void setBorderColor(PixelColor borderColor) {
         onChange();
         this.borderColor = borderColor;
+    }
+
+    @Override
+    public void setSize(int width, int height) {
+        super.setSize(width, height);
+        if (drawBorder) {
+            this.clientWidth = Math.max(width - 2, 0);
+            this.clientHeight = Math.max(height - 2, 0);
+        }
     }
 }

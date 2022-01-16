@@ -1,5 +1,6 @@
 package io.github.biligoldenwater.midiplayer.utils.particlegui;
 
+import io.github.biligoldenwater.midiplayer.utils.particlegui.component.ProgressBar;
 import io.github.biligoldenwater.midiplayer.utils.particlegui.component.Window;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -15,9 +16,14 @@ public class ParticleGui extends BukkitRunnable {
 
     private int tick = 0;
 
+    private long drawCall = 0;
+    private long lastEnd = 0;
+
     private double yaw = 0;
     private double pitch = 0;
     private Vector pitchAxis;
+
+    private ProgressBar progressBar;
 
     public ParticleGui(Player targetPlayer, Window window) {
         this.player = targetPlayer;
@@ -26,19 +32,36 @@ public class ParticleGui extends BukkitRunnable {
 
     @Override
     public void run() {
+        player.sendMessage("");
+        player.sendMessage("===========================================");
         player.sendMessage(String.format("tick: %d", tick));
-
         long start = System.currentTimeMillis();
+        player.sendMessage(String.format("delay: %dms", start - lastEnd));
+
+        if (tick == 0) {
+            progressBar = new ProgressBar(0, 0, 1, 1);
+            progressBar.setFitParent(true);
+//            Panel panel = new Panel(0, 0, 100, 20, true);
+//            panel.addChild(progressBar);
+            window.addChild(progressBar);
+        } else {
+            progressBar.setPercent(tick / 100f * 100);
+        }
+
         this.updateOffsetInfo();
         if (window.needRender()) window.render();
         this.drawWindow(window);
-        long end = System.currentTimeMillis();
-        player.sendMessage(String.format("cost: %dms", end - start));
+        player.sendMessage(String.format("drawCall: %d", drawCall));
+        drawCall = 0;
 
-        if (tick >= 200) {
+        if (tick >= 100 || player.isSneaking()) {
             this.cancel();
         }
         tick++;
+
+        long end = System.currentTimeMillis();
+        player.sendMessage(String.format("cost: %dms", end - start));
+        lastEnd = end;
     }
 
     public void drawWindow(Window window) {
@@ -48,8 +71,8 @@ public class ParticleGui extends BukkitRunnable {
         int halfWidth = width / 2;
         int halfHeight = height / 2;
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 PixelColor pixelColor = window.getPixel(x, y);
                 if (pixelColor != null) {
                     drawPixel(halfWidth - x, y - halfHeight, pixelColor);
@@ -71,7 +94,9 @@ public class ParticleGui extends BukkitRunnable {
 
         Particle.DustOptions dust = new Particle.DustOptions(pixelColor.toBukkitColor(), 0.2f);
 
-        player.spawnParticle(Particle.REDSTONE, tLoc, 1, dust);
+        player.spawnParticle(Particle.REDSTONE, tLoc.getX(), tLoc.getY(), tLoc.getZ(), 1, 0, 0, 0, 0, dust);
+        
+        drawCall++;
     }
 
     public void updateOffsetInfo() {
