@@ -9,12 +9,13 @@ import org.bukkit.util.Vector;
 
 public class ParticleGui extends BukkitRunnable {
     private final Player player;
+    private final boolean debug;
 
     private double distance = 10;
     private Window window;
 
-//    private long drawCall = 0;
-//    private long lastEnd = 0;
+    private long drawCall = 0;
+    private long lastEnd = 0;
 
     private Location tLoc; // targetLoc
     private double yaw = 0;
@@ -22,25 +23,36 @@ public class ParticleGui extends BukkitRunnable {
     private Vector pitchAxis;
 
     public ParticleGui(Player targetPlayer, Window window) {
+        this(targetPlayer, window, false);
+    }
+
+    public ParticleGui(Player targetPlayer, Window window, boolean debug) {
         this.player = targetPlayer;
         this.window = window;
+        this.debug = debug;
     }
 
     @Override
     public void run() {
-//        player.sendMessage("===========================================");
-//        long start = System.currentTimeMillis();
-//        player.sendMessage(String.format("delay: %dms", start - lastEnd));
+        long start = 0;
+        if (debug) {
+            player.sendMessage("===========================================");
+            start = System.currentTimeMillis();
+            player.sendMessage(String.format("delay: %dms", start - lastEnd));
+        }
 
         this.updateOffsetInfo();
         if (window.needRender()) window.render();
         this.drawWindow(window);
-//        player.sendMessage(String.format("drawCall: %d", drawCall));
-//        drawCall = 0;
-//
-//        long end = System.currentTimeMillis();
-//        player.sendMessage(String.format("cost: %dms", end - start));
-//        lastEnd = end;
+
+        if (debug) {
+            player.sendMessage(String.format("drawCall: %d", drawCall));
+            drawCall = 0;
+
+            long end = System.currentTimeMillis();
+            player.sendMessage(String.format("cost: %dms", end - start));
+            lastEnd = end;
+        }
     }
 
     public void drawWindow(Window window) {
@@ -75,7 +87,7 @@ public class ParticleGui extends BukkitRunnable {
 
         player.spawnParticle(Particle.REDSTONE, tLoc.getX(), tLoc.getY(), tLoc.getZ(), 2, 0, 0, 0, 0, dust);
 
-//        drawCall++;
+        if (debug) drawCall++;
     }
 
     public void updateOffsetInfo() {

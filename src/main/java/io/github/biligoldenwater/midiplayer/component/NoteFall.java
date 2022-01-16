@@ -16,14 +16,31 @@ public class NoteFall extends Panel {
     }
 
     public void update() {
+        if (getChildrenSize() > 100) {
+            List<Component> children = new ArrayList<>();
+            forEachChildren(children::add);
+            children.sort((a, b) -> {
+                if (a instanceof Note && b instanceof Note) {
+                    Note aNote = (Note) a;
+                    Note bNote = (Note) b;
+                    return aNote.getStartTs() < bNote.getStartTs() ? 1 : 0;
+                } else {
+                    return 0;
+                }
+            });
+            children.forEach(this::removeChild);
+            for (int i = 0; i < children.size() - 50; i++) {
+                removeChild(children.get(i));
+            }
+        }
         List<Component> needRemove = new ArrayList<>();
 
         forEachChildren((child) -> {
             if (child instanceof Note) {
                 Note block = (Note) child;
 
-                long startTs = block.getStartTs() / 100;
-                long tsNow = System.currentTimeMillis() / 100;
+                long startTs = block.getStartTs() / 25;
+                long tsNow = System.currentTimeMillis() / 25;
 
                 if (!block.ended) {
                     block.setSize(1, Math.max((int) (tsNow - startTs), 1));

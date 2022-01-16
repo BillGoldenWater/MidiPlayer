@@ -34,6 +34,7 @@ public class Panel extends Component {
 
     public void render() {
         int width = getWidth();
+        List<Component> children = new ArrayList<>(this.children);
 
         this.pixels = new PixelColor[width * getHeight()];
 
@@ -110,6 +111,10 @@ public class Panel extends Component {
 
     public void forEachChildren(Consumer<? super Component> action) {
         children.forEach(action);
+    }
+
+    public int getChildrenSize() {
+        return children.size();
     }
 
     public boolean isDrawBorder() {

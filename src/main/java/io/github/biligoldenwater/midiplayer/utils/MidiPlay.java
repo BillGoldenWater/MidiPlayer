@@ -9,6 +9,7 @@ import org.apache.commons.codec.binary.Hex;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.annotation.Nullable;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.ShortMessage;
@@ -38,7 +39,7 @@ public class MidiPlay extends BukkitRunnable {
 
     private int ticksInOnce = 1;
 
-    public MidiPlay(File midiFile, PlayNote playNote, Player player, boolean useStop) {
+    public MidiPlay(File midiFile, PlayNote playNote, @Nullable Player player, boolean useStop) {
         this.midiFile = midiFile;
         this.playNote = playNote;
         this.player = player;
@@ -55,11 +56,14 @@ public class MidiPlay extends BukkitRunnable {
                 MidiPlayer.getInstance().getLogger().warning("Unsupported MIDI file type; Name:" + midiFile.getName());
                 return;
             }
-            tickLength = midiData.getTickLength();
-            midiDisplay = new MidiDisplay(tickLength);
-            particleGui = new ParticleGui(this.player, midiDisplay.getWindow());
-            particleGui.setDistance(5);
-            particleGui.runTaskTimerAsynchronously(MidiPlayer.getInstance(), 0, 0);
+            this.tickLength = this.midiData.getTickLength();
+
+            if (this.player != null) {
+                this.midiDisplay = new MidiDisplay(this.tickLength);
+                this.particleGui = new ParticleGui(this.player, this.midiDisplay.getWindow());
+                this.particleGui.setDistance(5);
+                this.particleGui.runTaskTimerAsynchronously(MidiPlayer.getInstance(), 0, 0);
+            }
 
             while (running) {
                 long timeStart = System.currentTimeMillis();
@@ -89,7 +93,9 @@ public class MidiPlay extends BukkitRunnable {
 
         calcTicksInOnce();
 
-        this.midiDisplay.setTick(this.tick);
+        if (this.midiDisplay != null) {
+            this.midiDisplay.setTick(this.tick);
+        }
 
         List<TrackData> tracks = midiData.getTracks(); // 获取所有轨道
         for (int i = 0, len = tracks.size(); i < len; i++) {
@@ -111,7 +117,9 @@ public class MidiPlay extends BukkitRunnable {
                             int note = shortMessage.getData1();
                             int velocity = shortMessage.getData2();
 
-                            this.midiDisplay.noteOn(note);
+                            if (this.midiDisplay != null) {
+                                this.midiDisplay.noteOn(note);
+                            }
                             playNote.noteOn(instrumentId, note, velocity);
                             Debug.print(String.format("Channel: %d, Instrument: %d, NoteOn: %d, Velocity: %d",
                                     channelId,
@@ -126,7 +134,9 @@ public class MidiPlay extends BukkitRunnable {
                             int note = shortMessage.getData1();
                             int velocity = shortMessage.getData2();
 
-                            this.midiDisplay.noteOff(note);
+                            if (this.midiDisplay != null) {
+                                this.midiDisplay.noteOff(note);
+                            }
                             if (useStop) {
                                 playNote.noteOff(instrumentId, note);
                             }
@@ -229,6 +239,8 @@ public class MidiPlay extends BukkitRunnable {
 
     public void stop() {
         running = false;
-        particleGui.cancel();
+        if (this.particleGui != null) {
+            this.particleGui.cancel();
+        }
     }
 }

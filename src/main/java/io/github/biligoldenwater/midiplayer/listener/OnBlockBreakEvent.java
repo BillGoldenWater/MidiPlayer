@@ -25,16 +25,16 @@ public class OnBlockBreakEvent implements Listener {
 
 //        File midiFile = new File("D:\\Music\\Midis\\U.N.オーエンは彼女なのか？.mid");
 //        File midiFile = new File("D:\\Music\\Midis\\When Christmas comes to town.mid");
-//        File midiFile = new File("D:\\Music\\Midis\\勾指起誓双轨.mid");
+        File midiFile = new File("D:\\Music\\Midis\\勾指起誓双轨.mid");
 //        File midiFile = new File("D:\\Music\\Midis\\Luv letter -Dj Okawari.mid");
 //        File midiFile = new File("D:\\Music\\Midis\\千本樱.mid");
 //        File midiFile = new File("D:\\Music\\Midis\\Hedwigs Theme.mid");
 //        File midiFile = new File("D:\\Music\\Midis\\Rubia.mid");
-        File midiFile = new File("D:\\Music\\Midis\\D大调卡农.mid");
+//        File midiFile = new File("D:\\Music\\Midis\\D大调卡农.mid");
 
-        PlayNote playNote = new PlayNote(PlayNote.ResourcePack.realPiano, event.getPlayer(), false, 0, true);
+        PlayNote playNote = new PlayNote(PlayNote.ResourcePack.realPiano, event.getPlayer().getLocation(), 10, true);
 
-        MidiPlay midiPlay = new MidiPlay(midiFile, playNote, event.getPlayer(), false);
+        MidiPlay midiPlay = new MidiPlay(midiFile, playNote, null, false);
         midiPlay.runTaskAsynchronously(MidiPlayer.getInstance());
         playList.put(playerName, midiPlay);
     }
