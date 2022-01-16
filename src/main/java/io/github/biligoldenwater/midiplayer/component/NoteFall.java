@@ -26,7 +26,7 @@ public class NoteFall extends Panel {
                 long tsNow = System.currentTimeMillis() / 100;
 
                 if (!block.ended) {
-                    block.setSize(1, (int) (tsNow - startTs));
+                    block.setSize(1, Math.max((int) (tsNow - startTs), 1));
                 } else {
                     block.setY((int) (tsNow - startTs) - block.getHeight());
                 }
