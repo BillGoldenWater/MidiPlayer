@@ -27,6 +27,8 @@ public class ProgressBar extends Component {
     public void render() {
         if (fitParent && getParent() != null) {
             setSize(getParent().getClientWidth(), getParent().getClientHeight());
+        } else {
+            this.pixels = new PixelColor[getWidth() * getHeight()];
         }
         if (!isHorizontal) {
             for (int i = 0; i < pixels.length * percent * 0.01; i++) {

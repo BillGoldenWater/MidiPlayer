@@ -83,7 +83,6 @@ public abstract class Component {
     }
 
     public void setSize(int width, int height) {
-        if (width == this.width && height == this.height) return;
         onChange();
         this.width = width;
         this.height = height;

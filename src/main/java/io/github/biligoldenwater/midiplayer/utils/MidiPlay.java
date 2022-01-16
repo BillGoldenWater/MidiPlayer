@@ -1,9 +1,12 @@
 package io.github.biligoldenwater.midiplayer.utils;
 
 import io.github.biligoldenwater.midiplayer.MidiPlayer;
+import io.github.biligoldenwater.midiplayer.component.MidiDisplay;
 import io.github.biligoldenwater.midiplayer.data.MidiData;
 import io.github.biligoldenwater.midiplayer.data.TrackData;
+import io.github.biligoldenwater.midiplayer.utils.particlegui.ParticleGui;
 import org.apache.commons.codec.binary.Hex;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.sound.midi.MetaMessage;
@@ -17,10 +20,13 @@ import java.util.List;
 public class MidiPlay extends BukkitRunnable {
     private final PlayNote playNote;
     private final File midiFile;
+    private final Player player;
     private final int minimumDelayInMicrosecond = 10 * 1000; // 50 ms
     private final boolean useStop;
 
     private MidiData midiData;
+    private MidiDisplay midiDisplay;
+    private ParticleGui particleGui;
 
     private long tickLength;
     private long tick = 0;
@@ -32,9 +38,10 @@ public class MidiPlay extends BukkitRunnable {
 
     private int ticksInOnce = 1;
 
-    public MidiPlay(File midiFile, boolean useStop, PlayNote playNote) {
-        this.playNote = playNote;
+    public MidiPlay(File midiFile, PlayNote playNote, Player player, boolean useStop) {
         this.midiFile = midiFile;
+        this.playNote = playNote;
+        this.player = player;
         this.useStop = useStop;
     }
 
@@ -49,6 +56,10 @@ public class MidiPlay extends BukkitRunnable {
                 return;
             }
             tickLength = midiData.getTickLength();
+            midiDisplay = new MidiDisplay(tickLength);
+            particleGui = new ParticleGui(this.player, midiDisplay.getWindow());
+            particleGui.setDistance(5);
+            particleGui.runTaskTimerAsynchronously(MidiPlayer.getInstance(), 0, 0);
 
             while (running) {
                 long timeStart = System.currentTimeMillis();
@@ -78,6 +89,8 @@ public class MidiPlay extends BukkitRunnable {
 
         calcTicksInOnce();
 
+        this.midiDisplay.setTick(this.tick);
+
         List<TrackData> tracks = midiData.getTracks(); // 获取所有轨道
         for (int i = 0, len = tracks.size(); i < len; i++) {
             TrackData track = tracks.get(i); // 获取当前轨道
@@ -98,6 +111,7 @@ public class MidiPlay extends BukkitRunnable {
                             int note = shortMessage.getData1();
                             int velocity = shortMessage.getData2();
 
+                            this.midiDisplay.noteOn(note);
                             playNote.noteOn(instrumentId, note, velocity);
                             Debug.print(String.format("Channel: %d, Instrument: %d, NoteOn: %d, Velocity: %d",
                                     channelId,
@@ -112,6 +126,7 @@ public class MidiPlay extends BukkitRunnable {
                             int note = shortMessage.getData1();
                             int velocity = shortMessage.getData2();
 
+                            this.midiDisplay.noteOff(note);
                             if (useStop) {
                                 playNote.noteOff(instrumentId, note);
                             }
@@ -214,5 +229,6 @@ public class MidiPlay extends BukkitRunnable {
 
     public void stop() {
         running = false;
+        particleGui.cancel();
     }
 }

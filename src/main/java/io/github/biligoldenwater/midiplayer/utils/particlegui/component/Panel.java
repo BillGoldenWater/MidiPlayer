@@ -6,6 +6,7 @@ import org.bukkit.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Panel extends Component {
     // final option
@@ -34,6 +35,8 @@ public class Panel extends Component {
     public void render() {
         int width = getWidth();
 
+        this.pixels = new PixelColor[width * getHeight()];
+
         //region draw children
         for (Component child : children) {
             if (!child.needRender()) continue;
@@ -48,9 +51,11 @@ public class Panel extends Component {
                     int posX = childX + x;
                     int posY = childY + y;
 
+                    // 当超出窗口边界时
+                    if (posX < (drawBorder ? 1 : 0) || posY < (drawBorder ? 1 : 0)) continue;
                     if (posX >= this.getWidth() - (drawBorder ? 1 : 0) ||
                             posY >= this.getHeight() - (drawBorder ? 1 : 0))
-                        continue; // 当超出窗口边界时
+                        continue;
 
                     PixelColor pixelColor = child.getPixel(x, y);
                     if (pixelColor == null || pixelColor.getAlpha() == 0) continue; // 组件像素颜色为空或完全透明时
@@ -101,6 +106,10 @@ public class Panel extends Component {
     public void removeChild(Component child) {
         child.setParent(null);
         this.children.remove(child);
+    }
+
+    public void forEachChildren(Consumer<? super Component> action) {
+        children.forEach(action);
     }
 
     public boolean isDrawBorder() {
